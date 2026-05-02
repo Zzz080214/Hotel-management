@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: ${DB_TEST_URL:jdbc:mysql://127.0.0.1:3306/hotel_management_test?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_TEST_USERNAME:${DB_USERNAME:root}}
+    password: ${DB_TEST_PASSWORD:${DB_PASSWORD:}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+    show-sql: false
+
+logging:
+  level:
+    org.hibernate.SQL: warn

@@ -1,0 +1,87 @@
+.header {
+  padding: 28rpx;
+}
+
+.source-line {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #9b5b28;
+}
+
+.tab-row {
+  display: flex;
+  gap: 14rpx;
+  flex-wrap: wrap;
+  margin-top: 22rpx;
+}
+
+.tab-pill {
+  padding: 0 22rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #7f4318;
+  background: rgba(185, 107, 44, 0.08);
+}
+
+.tab-pill-active {
+  color: #fff8ef;
+  background: linear-gradient(135deg, #bc7335, #7f4318);
+}
+
+.order-card {
+  padding: 24rpx;
+  margin-top: 20rpx;
+}
+
+.order-top,
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.order-id {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.order-room {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #7c6651;
+}
+
+.order-row {
+  margin-top: 18rpx;
+  font-size: 24rpx;
+}
+
+.order-actions {
+  margin-top: 22rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.face-btn {
+  height: 64rpx;
+  padding: 0 28rpx;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff8ef;
+  font-size: 24rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #bc7335, #7f4318);
+  box-shadow: 0 12rpx 22rpx rgba(127, 67, 24, 0.16);
+}
+
+.empty-card {
+  margin-top: 20rpx;
+  padding: 40rpx 24rpx;
+  text-align: center;
+  color: #7c6651;
+  font-size: 24rpx;
+}

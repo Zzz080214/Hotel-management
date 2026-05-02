@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>酒店管理系统后台原型</title>
+  <style>
+    :root {
+      --bg: #dde2e5;
+      --panel: rgba(248, 246, 241, 0.84);
+      --panel-strong: #fdfbf7;
+      --line: rgba(39, 58, 76, 0.10);
+      --line-strong: rgba(39, 58, 76, 0.18);
+      --text: #18222d;
+      --muted: #677482;
+      --brand: #c4a16d;
+      --brand-deep: #22384b;
+      --brand-soft: #eee3d2;
+      --success: #4f7665;
+      --success-soft: rgba(79, 118, 101, 0.12);
+      --warning: #ae7f40;
+      --warning-soft: rgba(174, 127, 64, 0.14);
+      --danger: #a05a56;
+      --danger-soft: rgba(160, 90, 86, 0.12);
+      --info: #627487;
+      --shadow: 0 30px 70px rgba(24, 37, 50, 0.14);
+      --shadow-soft: 0 18px 40px rgba(24, 37, 50, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Aptos", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at left top, rgba(196, 161, 109, 0.20), transparent 22%),
+        radial-gradient(circle at right 18% top 8%, rgba(53, 78, 103, 0.10), transparent 17%),
+        linear-gradient(145deg, rgba(255, 251, 245, 0.42), transparent 42%),
+        linear-gradient(180deg, #edf1f2 0%, #e2e6e7 46%, #d7dcde 100%);
+      background-attachment: fixed;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      background: none;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding: 28px 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at top, rgba(196, 161, 109, 0.18), transparent 26%),
+        linear-gradient(180deg, rgba(19, 29, 39, 0.985), rgba(13, 21, 30, 0.985));
+      color: #fff9f1;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+    }
+
+    .brand {
+      position: relative;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 241, 219, 0.16);
+    }
+
+    .brand::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 84px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(223, 199, 158, 0.95), transparent);
+    }
+
+    .brand-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(145deg, #f4e5c9, #c59a62 68%, #8c6a46 100%);
+      color: #22384b;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 247, 229, 0.46);
+    }
+
+    .brand h1 {
+      margin: 0 0 8px;
+      font-family: "Georgia", "Times New Roman", "Songti SC", "STSong", serif;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .brand p,
+    .user-card p,
+    .menu small {
+      margin: 0;
+      color: rgba(223, 230, 236, 0.72);
+    }
+
+    .page-intro p,
+    .metric-note,
+    .helper,
+    .table-meta,
+    .mini-note,
+    .section-head p,
+    .subtle {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .menu {
+      display: grid;
+      gap: 10px;
+    }
+
+    .menu-item {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 16px;
+      color: #fff8ef;
+      text-align: left;
+      background: rgba(243, 248, 251, 0.035);
+      border: 1px solid rgba(223, 232, 238, 0.06);
+      transition: 0.25s ease;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background: linear-gradient(135deg, rgba(245, 248, 252, 0.10), rgba(196, 161, 109, 0.12));
+      border-color: rgba(218, 199, 168, 0.18);
+      transform: translateX(2px);
+      box-shadow: inset 0 1px 0 rgba(255, 248, 238, 0.08);
+    }
+
+    .menu-label {
+      display: grid;
+      gap: 4px;
+    }
+
+    .menu strong {
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(196, 161, 109, 0.14);
+      color: #e7d3b1;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(223, 209, 183, 0.08);
+    }
+
+    .user-card {
+      margin-top: auto;
+      padding: 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(145deg, rgba(242, 247, 251, 0.10), rgba(196, 161, 109, 0.08));
+      border: 1px solid rgba(218, 227, 234, 0.12);
+      box-shadow: inset 0 1px 0 rgba(239, 246, 250, 0.08);
+    }
+
+    .user-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .content-shell {
+      display: grid;
+      gap: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background:
+        linear-gradient(180deg, rgba(253, 250, 245, 0.84), rgba(241, 238, 233, 0.76));
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topbar::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(196, 161, 109, 0.34), transparent);
+    }
+
+    .page-intro h2 {
+      margin: 0 0 6px;
+      font-family: "Georgia", "Times New Roman", "Songti SC", "STSong", serif;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: 0.06em;
+    }
+
+    .topbar-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .search-box,
+    .select-box,
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(39, 58, 76, 0.12);
+      background: rgba(255, 253, 249, 0.98);
+      color: var(--text);
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66);
+    }
+
+    .search-box:focus,
+    .select-box:focus,
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: rgba(196, 161, 109, 0.34);
+      box-shadow: 0 0 0 4px rgba(196, 161, 109, 0.10);
+    }
+
+    .search-box {
+      min-width: 220px;
+    }
+
+    .field textarea {
+      min-height: 120px;
+      padding: 14px;
+      resize: vertical;
+    }
+
+    .main {
+      display: grid;
+      gap: 24px;
+    }
+
+    .page {
+      display: none;
+      gap: 24px;
+    }
+
+    .page.active {
+      display: grid;
+      animation: fadeIn 0.28s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero,
+    .panel,
+    .metric-card,
+    .summary-card,
+    .kpi-card,
+    .board-card,
+    .timeline-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.35fr 0.92fr;
+      gap: 20px;
+      padding: 34px;
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at right top, rgba(196, 161, 109, 0.16), transparent 26%),
+        linear-gradient(120deg, rgba(19, 29, 39, 0.988) 0%, rgba(32, 48, 63, 0.988) 44%, rgba(250, 247, 242, 0.96) 44%, rgba(240, 236, 231, 0.92) 100%),
+        var(--panel);
+    }
+
+    .hero > div:first-child {
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 30px;
+      top: 28px;
+      width: 86px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(223, 197, 154, 0.92), transparent);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: 22px;
+      border: 1px solid rgba(236, 227, 211, 0.08);
+      pointer-events: none;
+    }
+
+    .hero h3 {
+      margin: 0 0 10px;
+      max-width: 480px;
+      font-family: "Georgia", "Times New Roman", "Songti SC", "STSong", serif;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0.05em;
+      color: #f7ecdb;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 480px;
+      color: rgba(231, 237, 242, 0.80);
+      line-height: 1.8;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      color: rgba(224, 231, 236, 0.82);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .hero-kicker::before {
+      content: "";
+      width: 42px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(222, 197, 157, 0.9), transparent);
+    }
+
+    .hero-actions,
+    .toolbar,
+    .chip-row,
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 0 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      color: var(--brand-deep);
+      border: 1px solid rgba(39, 58, 76, 0.14);
+      background: rgba(255, 252, 247, 0.92);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+    }
+
+    .button.primary {
+      color: #fff9f0;
+      background: linear-gradient(135deg, #c5a06b, #8c6d4b 46%, #274155 100%);
+      box-shadow: 0 16px 28px rgba(38, 57, 76, 0.22);
+      border-color: transparent;
+    }
+
+    .button.success {
+      color: #fff;
+      background: linear-gradient(135deg, #35835a, #23553b);
+      border-color: transparent;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-side,
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+      max-width: 420px;
+    }
+
+    .hero-stat {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(245, 249, 252, 0.08), rgba(245, 249, 252, 0.03));
+      border: 1px solid rgba(221, 230, 236, 0.10);
+      box-shadow: inset 0 1px 0 rgba(244, 248, 251, 0.06);
+    }
+
+    .hero-stat span {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(218, 227, 234, 0.68);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-stat strong {
+      display: block;
+      color: #fbf7ef;
+      font-size: 22px;
+      letter-spacing: 0.03em;
+    }
+
+    .hero-stat:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .trend-card,
+    .mini-panel,
+    .summary-card,
+    .kpi-card,
+    .board-card,
+    .timeline-card {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 252, 247, 0.95), rgba(242, 238, 232, 0.90));
+      border: 1px solid rgba(39, 58, 76, 0.10);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+    }
+
+    .hero-side .trend-card {
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.94), rgba(242, 238, 232, 0.92));
+      border: 1px solid rgba(39, 58, 76, 0.10);
+      color: var(--text);
+      box-shadow: 0 18px 28px rgba(24, 37, 50, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-side .trend-card small,
+    .hero-side .trend-card .mini-note {
+      color: var(--muted);
+    }
+
+    .hero-side .trend-row strong {
+      color: var(--text);
+    }
+
+    .trend-row,
+    .metric-top,
+    .section-head,
+    .summary-head,
+    .panel-head,
+    .occupancy-header,
+    .inline-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .trend-row strong,
+    .hero strong.big,
+    .metric-card strong {
+      font-size: 30px;
+    }
+
+    .metric-tag,
+    .status,
+    .tag,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .metric-tag.success,
+    .status.active,
+    .tag.success {
+      color: var(--success);
+      background: var(--success-soft);
+    }
+
+    .metric-tag.warning,
+    .status.pending,
+    .tag.warning {
+      color: var(--warning);
+      background: var(--warning-soft);
+    }
+
+    .metric-tag.brand,
+    .status.finished,
+    .tag.brand {
+      color: var(--brand-deep);
+      background: rgba(39, 58, 76, 0.09);
+    }
+
+    .metric-tag.danger,
+    .status.cancelled,
+    .tag.danger {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .tag.info {
+      color: var(--info);
+      background: rgba(95, 114, 137, 0.12);
+    }
+
+    .chip {
+      min-height: 40px;
+      padding: 0 16px;
+      background: rgba(255, 252, 247, 0.88);
+      color: var(--brand-deep);
+      border: 1px solid rgba(39, 58, 76, 0.12);
+      transition: 0.2s ease;
+    }
+
+    .chip.active,
+    .chip:hover {
+      background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+      color: #fff8ef;
+      border-color: transparent;
+    }
+
+    .trend-graph {
+      height: 72px;
+      margin-top: 16px;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(196, 161, 109, 0.16), rgba(196, 161, 109, 0.03)),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0,
+          transparent 42px,
+          rgba(39, 58, 76, 0.05) 42px,
+          rgba(39, 58, 76, 0.05) 43px
+        );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .trend-graph svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .metrics,
+    .summary-grid,
+    .kpi-grid,
+    .room-grid,
+    .chart-grid,
+    .form-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .metrics,
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .kpi-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .room-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .chart-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .metric-card {
+      position: relative;
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(241, 237, 232, 0.92));
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      left: 22px;
+      top: 0;
+      width: 72px;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(196, 161, 109, 0.95), transparent);
+    }
+
+    .metric-card strong {
+      display: block;
+      margin: 10px 0 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .dashboard,
+    .two-column,
+    .three-column {
+      display: grid;
+      gap: 24px;
+    }
+
+    .dashboard,
+    .two-column {
+      grid-template-columns: 1.3fr 1fr;
+    }
+
+    .three-column {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(253, 251, 246, 0.90), rgba(242, 238, 232, 0.88));
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+      pointer-events: none;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    .section-head h3,
+    .panel-head h3 {
+      margin: 0 0 6px;
+      font-family: "Georgia", "Times New Roman", "Songti SC", "STSong", serif;
+      font-size: 22px;
+      letter-spacing: 0.03em;
+    }
+
+    .summary-head h3 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+
+    .section-link {
+      color: var(--brand-deep);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(39, 58, 76, 0.08);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d2b07a, #9f7b4f);
+    }
+
+    .split {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 0 0 12px;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid rgba(39, 58, 76, 0.10);
+    }
+
+    tbody td {
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(39, 58, 76, 0.08);
+      vertical-align: top;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(244, 247, 249, 0.78);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .status {
+      padding: 6px 10px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0 14px 4px;
+      border-bottom: 1px solid rgba(39, 58, 76, 0.08);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .time-box {
+      display: grid;
+      place-items: center;
+      height: 52px;
+      border-radius: 16px;
+      background: rgba(196, 161, 109, 0.12);
+      color: var(--brand-deep);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .announce-list,
+    .notice-grid,
+    .room-list,
+    .task-list,
+    .stat-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .announce,
+    .notice-card,
+    .task-item,
+    .stat-item,
+    .room-card {
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.90), rgba(242, 238, 232, 0.84));
+      border: 1px solid rgba(39, 58, 76, 0.08);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .announce p,
+    .notice-card p,
+    .task-item p,
+    .room-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .announce strong,
+    .timeline-item strong,
+    .notice-card strong,
+    .task-item strong,
+    .room-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .filter-panel,
+    .control-panel,
+    .form-panel {
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.88), rgba(243, 239, 233, 0.84));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .toolbar {
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toolbar-left,
+    .toolbar-right,
+    .field-stack {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .room-card {
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.92), rgba(242, 238, 232, 0.88));
+    }
+
+    .room-meta,
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bar-item {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(39, 58, 76, 0.08);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #d7bb8d, #9f7b4f);
+    }
+
+    .calendar-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .calendar-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255, 252, 248, 0.88);
+      border: 1px solid rgba(39, 58, 76, 0.08);
+    }
+
+    .calendar-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .kanban-column {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 252, 248, 0.76);
+      border: 1px solid rgba(39, 58, 76, 0.10);
+    }
+
+    .kanban-column h4,
+    .mini-title {
+      margin: 0 0 14px;
+      font-size: 16px;
+    }
+
+    .topbar-card strong {
+      display: block;
+      margin: 0 0 2px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .hero-stat strong,
+    .trend-row strong,
+    .hero strong.big,
+    .metric-card strong,
+    .summary-head h3,
+    .topbar-card strong,
+    .time-box,
+    .pill {
+      font-family: "Aptos", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-style: normal;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+    }
+
+    .topbar-card {
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 252, 248, 0.98), rgba(243, 238, 232, 0.94));
+      border: 1px solid rgba(39, 58, 76, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding-bottom: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 20;
+      min-width: 260px;
+      max-width: 360px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      color: #fff8ef;
+      background: linear-gradient(135deg, rgba(22, 33, 44, 0.97), rgba(44, 66, 85, 0.96));
+      box-shadow: 0 18px 40px rgba(24, 37, 50, 0.26);
+      transform: translateY(24px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1280px) {
+      .metrics,
+      .summary-grid,
+      .room-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard,
+      .two-column,
+      .chart-grid,
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .topbar-tools {
+        justify-content: stretch;
+      }
+
+      .kanban,
+      .three-column,
+      .kpi-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 14px;
+        gap: 14px;
+      }
+
+      .sidebar,
+      .hero,
+      .panel,
+      .metric-card,
+      .topbar {
+        border-radius: 22px;
+      }
+
+      .hero,
+      .panel,
+      .topbar {
+        padding: 20px;
+      }
+
+      .page-intro h2,
+      .hero h3 {
+        font-size: 26px;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics,
+      .summary-grid,
+      .room-grid,
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar-left,
+      .toolbar-right,
+      .topbar-tools {
+        width: 100%;
+      }
+
+      .button,
+      .search-box,
+      .select-box {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">HT</div>
+        <h1>Yueqi Reserve</h1>
+        <p>悦栖酒店 · 中高端运营中枢</p>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-item active" data-page="dashboard" type="button">
+          <span class="menu-label">
+            <strong>工作台</strong>
+            <small>总览与运营数据</small>
+          </span>
+          <span class="pill">01</span>
+        </button>
+        <button class="menu-item" data-page="room-types" type="button">
+          <span class="menu-label">
+            <strong>房型管理</strong>
+            <small>价格、库存、房态</small>
+          </span>
+          <span class="pill">12</span>
+        </button>
+        <button class="menu-item" data-page="orders" type="button">
+          <span class="menu-label">
+            <strong>订单中心</strong>
+            <small>预订、支付、取消</small>
+          </span>
+          <span class="pill">26</span>
+        </button>
+        <button class="menu-item" data-page="checkin" type="button">
+          <span class="menu-label">
+            <strong>入住退房</strong>
+            <small>登记、查房、结算</small>
+          </span>
+          <span class="pill">08</span>
+        </button>
+        <button class="menu-item" data-page="notices" type="button">
+          <span class="menu-label">
+            <strong>公告统计</strong>
+            <small>通知发布与报表</small>
+          </span>
+          <span class="pill">04</span>
+        </button>
+      </nav>
+
+      <div class="user-card">
+        <strong>当前账号：值班运营经理</strong>
+        <p>今日关注 8 笔高优先级订单、2 间待翻房客房，以及 1 条待发布服务公告。</p>
+      </div>
+    </aside>
+
+    <div class="content-shell">
+      <header class="topbar">
+        <div class="page-intro">
+          <h2 id="pageTitle">工作台</h2>
+          <p id="pageSubtitle">查看酒店今日运营概览、订单趋势和入住情况。</p>
+        </div>
+
+        <div class="topbar-tools">
+          <input class="search-box" id="globalSearch" type="text" placeholder="搜索订单号 / 用户 / 房型">
+          <div class="topbar-card">
+            <strong id="liveClock">--:--</strong>
+            <div class="subtle">系统时间</div>
+          </div>
+          <button class="button primary" data-action="sync" type="button">同步今日数据</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="page active" id="page-dashboard" data-title="工作台" data-subtitle="查看酒店今日运营概览、订单趋势和入住情况。">
+          <section class="hero">
+            <div>
+              <div class="hero-kicker">Premium Service Console</div>
+              <h3>悦栖酒店高端运营后台</h3>
+              <p>
+                面向中高端住客服务场景，这里集中管理房态、订单节奏、入住接待与品牌公告。
+                页面既保留演示所需的完整业务路径，也强调更符合精品商务酒店定位的秩序感与服务质感。
+              </p>
+
+              <div class="hero-stats">
+                <div class="hero-stat">
+                  <span>今日均房价</span>
+                  <strong>¥428</strong>
+                </div>
+                <div class="hero-stat">
+                  <span>会员复购率</span>
+                  <strong>41%</strong>
+                </div>
+                <div class="hero-stat">
+                  <span>贵宾好评率</span>
+                  <strong>96%</strong>
+                </div>
+              </div>
+
+              <div class="hero-actions">
+                <button class="button primary" data-jump="checkin" type="button">发起贵宾入住</button>
+                <button class="button" data-jump="orders" type="button">查看当日订单</button>
+              </div>
+            </div>
+
+            <div class="hero-side">
+              <div class="trend-card">
+                <small>今日营业额</small>
+                <div class="trend-row">
+                  <strong>¥ 18,640</strong>
+                  <span class="metric-tag success">较昨日 +12%</span>
+                </div>
+                <div class="trend-graph" aria-hidden="true">
+                  <svg viewBox="0 0 300 80" preserveAspectRatio="none">
+                    <path d="M0,58 C28,52 40,28 70,30 C100,32 110,46 138,42 C164,38 177,12 206,18 C234,24 248,50 300,20"
+                      fill="none" stroke="#9b5b28" stroke-width="4" stroke-linecap="round"></path>
+                    <path d="M0,80 L0,58 C28,52 40,28 70,30 C100,32 110,46 138,42 C164,38 177,12 206,18 C234,24 248,50 300,20 L300,80 Z"
+                      fill="rgba(185, 107, 44, 0.18)"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="trend-card">
+                <small>房态提示</small>
+                <div class="trend-row">
+                  <strong>86%</strong>
+                  <span class="metric-tag brand">入住率</span>
+                </div>
+                <p class="mini-note">豪华大床房接近满房，建议上调周末价格并优先清扫待售房。</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="metrics">
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-note">今日订单</span>
+                <span class="metric-tag brand">实时</span>
+              </div>
+              <strong>128</strong>
+              <span class="mini-note">其中微信小程序预订 91 单</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-note">在住客房</span>
+                <span class="metric-tag success">稳定</span>
+              </div>
+              <strong>74</strong>
+              <span class="mini-note">今日预计退房 19 间</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-note">待处理退房</span>
+                <span class="metric-tag warning">关注</span>
+              </div>
+              <strong>7</strong>
+              <span class="mini-note">其中 2 间待查房确认</span>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-note">异常订单</span>
+                <span class="metric-tag danger">优先</span>
+              </div>
+              <strong>3</strong>
+              <span class="mini-note">超时未支付、重复预订需核对</span>
+            </article>
+          </section>
+
+          <section class="dashboard">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>房型入住概览</h3>
+                  <p>适合后续对接房型表、房间表、订单表统计结果</p>
+                </div>
+                <button class="section-link" data-jump="room-types" type="button">查看全部</button>
+              </div>
+
+              <div class="grid-two">
+                <div class="mini-panel">
+                  <div class="occupancy-header">
+                    <strong>豪华大床房</strong>
+                    <span>18 / 20</span>
+                  </div>
+                  <div class="progress"><span style="width: 90%;"></span></div>
+                  <div class="split">
+                    <span>入住率 90%</span>
+                    <span>均价 ¥428</span>
+                  </div>
+                </div>
+
+                <div class="mini-panel">
+                  <div class="occupancy-header">
+                    <strong>商务双床房</strong>
+                    <span>22 / 28</span>
+                  </div>
+                  <div class="progress"><span style="width: 78%;"></span></div>
+                  <div class="split">
+                    <span>入住率 78%</span>
+                    <span>均价 ¥396</span>
+                  </div>
+                </div>
+
+                <div class="mini-panel">
+                  <div class="occupancy-header">
+                    <strong>行政套房</strong>
+                    <span>7 / 8</span>
+                  </div>
+                  <div class="progress"><span style="width: 87.5%;"></span></div>
+                  <div class="split">
+                    <span>入住率 87.5%</span>
+                    <span>均价 ¥888</span>
+                  </div>
+                </div>
+
+                <div class="mini-panel">
+                  <div class="occupancy-header">
+                    <strong>钟点房</strong>
+                    <span>5 / 10</span>
+                  </div>
+                  <div class="progress"><span style="width: 50%;"></span></div>
+                  <div class="split">
+                    <span>入住率 50%</span>
+                    <span>均价 ¥168</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-head" style="margin-top: 24px;">
+                <div>
+                  <h3>最新订单</h3>
+                  <p>后台首页常见展示区，可以直接迁移成表格组件</p>
+                </div>
+                <span class="table-meta">更新时间：09:40</span>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>订单号</th>
+                    <th>用户</th>
+                    <th>房型</th>
+                    <th>入住日期</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>HT20260430001</td>
+                    <td>张同学</td>
+                    <td>豪华大床房</td>
+                    <td>2026-04-30</td>
+                    <td><span class="status pending">待入住</span></td>
+                  </tr>
+                  <tr>
+                    <td>HT20260430007</td>
+                    <td>李女士</td>
+                    <td>商务双床房</td>
+                    <td>2026-04-30</td>
+                    <td><span class="status active">在住</span></td>
+                  </tr>
+                  <tr>
+                    <td>HT20260430012</td>
+                    <td>王先生</td>
+                    <td>行政套房</td>
+                    <td>2026-05-01</td>
+                    <td><span class="status pending">待确认</span></td>
+                  </tr>
+                  <tr>
+                    <td>HT20260429031</td>
+                    <td>陈女士</td>
+                    <td>钟点房</td>
+                    <td>2026-04-29</td>
+                    <td><span class="status finished">已退房</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>今日运营提醒</h3>
+                  <p>适合展示入住、退房、公告和异常提示</p>
+                </div>
+              </div>
+
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="time-box">10:00</div>
+                  <div>
+                    <strong>3 间客房待退房确认</strong>
+                    <div class="mini-note">前台已发起退房，等待客房部查房并回传房态。</div>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="time-box">11:30</div>
+                  <div>
+                    <strong>团队订单即将到店</strong>
+                    <div class="mini-note">8 位住客已完成预登记，建议提前分配连号房间。</div>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="time-box">14:00</div>
+                  <div>
+                    <strong>周末房价策略待发布</strong>
+                    <div class="mini-note">管理员已保存草稿，公告发布后同步小程序首页。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-head" style="margin-top: 26px;">
+                <div>
+                  <h3>系统公告</h3>
+                  <p>后面可以接公告管理模块</p>
+                </div>
+                <button class="section-link" data-jump="notices" type="button">进入公告统计</button>
+              </div>
+
+              <div class="announce-list">
+                <div class="announce">
+                  <strong>五一节前排班提醒</strong>
+                  <p>请前台与客房部在 4 月 30 日 18:00 前完成节前排班确认，确保高峰期入住办理效率。</p>
+                </div>
+
+                <div class="announce">
+                  <strong>小程序预订功能升级</strong>
+                  <p>新版本支持房型筛选、日期联动和优惠展示，后台价格修改后可实时同步前端展示。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="page" id="page-room-types" data-title="房型管理" data-subtitle="管理房型价格、库存房间、可售状态和热门程度。">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <h3>房型总览</h3>
+                <p>支持演示房型信息、库存余量和不同房型的经营状态</p>
+              </div>
+              <div class="action-row">
+                <button class="button primary" data-action="add-room-type" type="button">新增房型</button>
+                <button class="button" data-action="export-room-types" type="button">导出房型表</button>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <article class="summary-card">
+                <div class="summary-head">
+                  <h3>4</h3>
+                  <span class="tag brand">房型数</span>
+                </div>
+                <p class="helper">当前启用 4 种房型，覆盖普通房、商务房、套房、钟点房。</p>
+              </article>
+              <article class="summary-card">
+                <div class="summary-head">
+                  <h3>66</h3>
+                  <span class="tag success">可售房</span>
+                </div>
+                <p class="helper">已清扫可直接分配的房间共 66 间。</p>
+              </article>
+              <article class="summary-card">
+                <div class="summary-head">
+                  <h3>12</h3>
+                  <span class="tag warning">待清扫</span>
+                </div>
+                <p class="helper">退房后待保洁处理的房间较多，可优先安排。</p>
+              </article>
+              <article class="summary-card">
+                <div class="summary-head">
+                  <h3>2</h3>
+                  <span class="tag danger">停售中</span>
+                </div>
+                <p class="helper">两间客房因设施检修暂不可售。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="filter-panel">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <div class="chip-row">
+                  <button class="chip active" data-room-filter="all" type="button">全部房型</button>
+                  <button class="chip" data-room-filter="hot" type="button">热门高入住</button>
+                  <button class="chip" data-room-filter="steady" type="button">稳定售卖</button>
+                  <button class="chip" data-room-filter="low" type="button">待优化</button>
+                </div>
+              </div>
+              <div class="toolbar-right">
+                <span class="helper">当前显示 <strong id="roomTypeVisibleCount">4</strong> 个房型卡片</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="room-grid" id="roomTypeGrid">
+            <article class="room-card" data-room-status="hot">
+              <div class="inline-head">
+                <strong>豪华大床房</strong>
+                <span class="tag success">热门</span>
+              </div>
+              <p>1.8 米大床，智能电视，景观窗，适合情侣和商务单人入住。</p>
+              <div class="progress"><span style="width: 90%;"></span></div>
+              <div class="room-meta">
+                <span>今日入住率 90%</span>
+                <span>标准价 ¥428</span>
+              </div>
+              <div class="room-meta">
+                <span>总房间 20</span>
+                <span>可售 2</span>
+                <span>待清扫 3</span>
+              </div>
+            </article>
+
+            <article class="room-card" data-room-status="steady">
+              <div class="inline-head">
+                <strong>商务双床房</strong>
+                <span class="tag brand">稳定</span>
+              </div>
+              <p>双 1.35 米床型，适合亲子和双人同行，是订单量最稳定的房型。</p>
+              <div class="progress"><span style="width: 78%;"></span></div>
+              <div class="room-meta">
+                <span>今日入住率 78%</span>
+                <span>标准价 ¥396</span>
+              </div>
+              <div class="room-meta">
+                <span>总房间 28</span>
+                <span>可售 6</span>
+                <span>待清扫 4</span>
+              </div>
+            </article>
+
+            <article class="room-card" data-room-status="hot">
+              <div class="inline-head">
+                <strong>行政套房</strong>
+                <span class="tag success">高利润</span>
+              </div>
+              <p>配备会客区和浴缸，面向高消费用户，是提升单笔营收的重要房型。</p>
+              <div class="progress"><span style="width: 87.5%;"></span></div>
+              <div class="room-meta">
+                <span>今日入住率 87.5%</span>
+                <span>标准价 ¥888</span>
+              </div>
+              <div class="room-meta">
+                <span>总房间 8</span>
+                <span>可售 1</span>
+                <span>检修 1</span>
+              </div>
+            </article>
+
+            <article class="room-card" data-room-status="low">
+              <div class="inline-head">
+                <strong>钟点房</strong>
+                <span class="tag warning">待优化</span>
+              </div>
+              <p>适合短时住宿，白天销量一般，可通过活动价提升利用率。</p>
+              <div class="progress"><span style="width: 50%;"></span></div>
+              <div class="room-meta">
+                <span>今日入住率 50%</span>
+                <span>标准价 ¥168</span>
+              </div>
+              <div class="room-meta">
+                <span>总房间 10</span>
+                <span>可售 5</span>
+                <span>停售 1</span>
+              </div>
+            </article>
+          </section>
+
+          <section class="two-column">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>房型配置表</h3>
+                  <p>适合后续直接替换为房型管理列表页</p>
+                </div>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>房型名称</th>
+                    <th>床型</th>
+                    <th>价格</th>
+                    <th>早餐</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>豪华大床房</td>
+                    <td>1.8 米大床</td>
+                    <td>¥428</td>
+                    <td>双早</td>
+                    <td><span class="status active">启用中</span></td>
+                  </tr>
+                  <tr>
+                    <td>商务双床房</td>
+                    <td>双 1.35 米床</td>
+                    <td>¥396</td>
+                    <td>双早</td>
+                    <td><span class="status active">启用中</span></td>
+                  </tr>
+                  <tr>
+                    <td>行政套房</td>
+                    <td>1.8 米大床</td>
+                    <td>¥888</td>
+                    <td>双早</td>
+                    <td><span class="status pending">限量售卖</span></td>
+                  </tr>
+                  <tr>
+                    <td>钟点房</td>
+                    <td>随机分配</td>
+                    <td>¥168</td>
+                    <td>无</td>
+                    <td><span class="status finished">活动售卖</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>房间状态板</h3>
+                  <p>模拟客房层面的可住、清扫、检修状态</p>
+                </div>
+              </div>
+              <div class="room-list">
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>1203 · 豪华大床房</strong>
+                    <span class="tag success">可入住</span>
+                  </div>
+                  <p>已完成清扫与检查，可直接分配给今日待入住订单。</p>
+                </div>
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>1508 · 商务双床房</strong>
+                    <span class="tag warning">待清扫</span>
+                  </div>
+                  <p>上一位住客已退房 20 分钟，预计 30 分钟后可售。</p>
+                </div>
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>1802 · 行政套房</strong>
+                    <span class="tag danger">检修中</span>
+                  </div>
+                  <p>空调检修未完成，后台已自动暂停该房间在线售卖。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="page" id="page-orders" data-title="订单中心" data-subtitle="查看预订记录、筛选订单状态，并演示支付与入住流程。">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <h3>订单筛选</h3>
+                <p>支持按订单号、住客姓名和状态进行演示过滤</p>
+              </div>
+              <button class="button primary" data-action="create-order" type="button">新建预订</button>
+            </div>
+
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <input class="search-box" id="orderKeyword" type="text" placeholder="输入订单号 / 用户名 / 房型">
+                <select class="select-box" id="orderStatusFilter">
+                  <option value="all">全部状态</option>
+                  <option value="pending">待入住</option>
+                  <option value="active">在住</option>
+                  <option value="finished">已完成</option>
+                  <option value="cancelled">已取消</option>
+                </select>
+              </div>
+              <div class="toolbar-right">
+                <button class="button" id="resetOrderFilter" type="button">重置筛选</button>
+                <span class="helper">当前显示 <strong id="orderVisibleCount">6</strong> 条订单</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="kpi-grid">
+            <article class="kpi-card">
+              <div class="summary-head">
+                <h3>91</h3>
+                <span class="tag brand">小程序</span>
+              </div>
+              <p class="helper">今日来自微信小程序的有效预订数量。</p>
+            </article>
+            <article class="kpi-card">
+              <div class="summary-head">
+                <h3>14</h3>
+                <span class="tag warning">待支付</span>
+              </div>
+              <p class="helper">超时未支付订单建议在系统里自动取消或短信提醒。</p>
+            </article>
+            <article class="kpi-card">
+              <div class="summary-head">
+                <h3>3</h3>
+                <span class="tag danger">异常单</span>
+              </div>
+              <p class="helper">包含重复预订、价格异常和信息不完整订单。</p>
+            </article>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <h3>订单列表</h3>
+                <p>表格已支持前端过滤，后面可以直接绑定接口数据</p>
+              </div>
+              <span class="table-meta">共 6 条演示数据</span>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>订单号</th>
+                  <th>用户</th>
+                  <th>房型</th>
+                  <th>金额</th>
+                  <th>入住日期</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="orderTableBody">
+                <tr data-status="pending" data-search="HT20260430001 张同学 豪华大床房">
+                  <td>HT20260430001</td>
+                  <td>张同学</td>
+                  <td>豪华大床房</td>
+                  <td>¥856</td>
+                  <td>2026-04-30</td>
+                  <td><span class="status pending">待入住</span></td>
+                </tr>
+                <tr data-status="active" data-search="HT20260430007 李女士 商务双床房">
+                  <td>HT20260430007</td>
+                  <td>李女士</td>
+                  <td>商务双床房</td>
+                  <td>¥792</td>
+                  <td>2026-04-30</td>
+                  <td><span class="status active">在住</span></td>
+                </tr>
+                <tr data-status="pending" data-search="HT20260430012 王先生 行政套房">
+                  <td>HT20260430012</td>
+                  <td>王先生</td>
+                  <td>行政套房</td>
+                  <td>¥888</td>
+                  <td>2026-05-01</td>
+                  <td><span class="status pending">待确认</span></td>
+                </tr>
+                <tr data-status="finished" data-search="HT20260429031 陈女士 钟点房">
+                  <td>HT20260429031</td>
+                  <td>陈女士</td>
+                  <td>钟点房</td>
+                  <td>¥168</td>
+                  <td>2026-04-29</td>
+                  <td><span class="status finished">已退房</span></td>
+                </tr>
+                <tr data-status="cancelled" data-search="HT20260430018 刘先生 商务双床房">
+                  <td>HT20260430018</td>
+                  <td>刘先生</td>
+                  <td>商务双床房</td>
+                  <td>¥396</td>
+                  <td>2026-05-02</td>
+                  <td><span class="status cancelled">已取消</span></td>
+                </tr>
+                <tr data-status="active" data-search="HT20260430022 赵女士 豪华大床房">
+                  <td>HT20260430022</td>
+                  <td>赵女士</td>
+                  <td>豪华大床房</td>
+                  <td>¥1284</td>
+                  <td>2026-04-30</td>
+                  <td><span class="status active">在住</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="two-column">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>支付与来源分布</h3>
+                  <p>适合后续接支付状态统计与渠道来源分析</p>
+                </div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-item">
+                  <div class="stat-row"><span>微信支付</span><span>71%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 71%;"></div></div>
+                </div>
+                <div class="bar-item">
+                  <div class="stat-row"><span>到店支付</span><span>18%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 18%;"></div></div>
+                </div>
+                <div class="bar-item">
+                  <div class="stat-row"><span>OTA 渠道</span><span>11%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 11%;"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>待跟进任务</h3>
+                  <p>用来展示订单异常、退款与客服跟进事项</p>
+                </div>
+              </div>
+              <div class="task-list">
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>HT20260430018</strong>
+                    <span class="tag danger">退款中</span>
+                  </div>
+                  <p>用户重复下单后申请取消，需审核支付流水后原路退款。</p>
+                </div>
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>HT20260430027</strong>
+                    <span class="tag warning">未支付</span>
+                  </div>
+                  <p>订单已保留 25 分钟，若仍未付款建议释放库存。</p>
+                </div>
+                <div class="task-item">
+                  <div class="inline-head">
+                    <strong>HT20260430030</strong>
+                    <span class="tag info">信息补录</span>
+                  </div>
+                  <p>住客手机号缺失，入住前需补录身份信息和联系电话。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="page" id="page-checkin" data-title="入住退房" data-subtitle="模拟前台登记、房间分配、退房结算和房态流转。">
+          <section class="two-column">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>入住登记</h3>
+                  <p>前端原型演示登记表单，后续可接用户与订单数据</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="guestName">住客姓名</label>
+                  <input id="guestName" type="text" placeholder="例如：张三">
+                </div>
+                <div class="field">
+                  <label for="guestPhone">联系电话</label>
+                  <input id="guestPhone" type="text" placeholder="请输入手机号">
+                </div>
+                <div class="field">
+                  <label for="checkRoomType">选择房型</label>
+                  <select id="checkRoomType">
+                    <option>豪华大床房</option>
+                    <option>商务双床房</option>
+                    <option>行政套房</option>
+                    <option>钟点房</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="checkRoomNo">分配房号</label>
+                  <select id="checkRoomNo">
+                    <option>1203</option>
+                    <option>1206</option>
+                    <option>1508</option>
+                    <option>1801</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="arriveDate">入住日期</label>
+                  <input id="arriveDate" type="date" value="2026-04-30">
+                </div>
+                <div class="field">
+                  <label for="leaveDate">退房日期</label>
+                  <input id="leaveDate" type="date" value="2026-05-01">
+                </div>
+                <div class="field full">
+                  <label for="remark">备注信息</label>
+                  <textarea id="remark" placeholder="可填写身份证登记、发票需求、特殊偏好等"></textarea>
+                </div>
+              </div>
+
+              <div class="hero-actions" style="margin-top: 18px;">
+                <button class="button primary" data-action="submit-checkin" type="button">提交入住登记</button>
+                <button class="button" data-action="save-draft" type="button">保存草稿</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>今日退房日程</h3>
+                  <p>可用于接退房列表、查房回执和结算状态</p>
+                </div>
+              </div>
+
+              <div class="calendar-list">
+                <div class="calendar-item">
+                  <div>
+                    <strong>1208 · 李女士</strong>
+                    <div class="subtle">商务双床房 · 预计 12:00 退房</div>
+                  </div>
+                  <span class="tag warning">待查房</span>
+                </div>
+                <div class="calendar-item">
+                  <div>
+                    <strong>1502 · 王先生</strong>
+                    <div class="subtle">豪华大床房 · 已申请延迟到 14:00</div>
+                  </div>
+                  <span class="tag info">延迟退房</span>
+                </div>
+                <div class="calendar-item">
+                  <div>
+                    <strong>1801 · 陈女士</strong>
+                    <div class="subtle">行政套房 · 押金待退回</div>
+                  </div>
+                  <span class="tag success">已结算</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <h3>入住退房流程看板</h3>
+                <p>演示业务状态流转，答辩时可以直接讲解系统流程</p>
+              </div>
+            </div>
+
+            <div class="kanban">
+              <div class="kanban-column">
+                <h4>待办理入住</h4>
+                <div class="task-list">
+                  <div class="task-item">
+                    <strong>张同学 · HT20260430001</strong>
+                    <p>已支付，等待到店核验证件并分配 1203 房。</p>
+                  </div>
+                  <div class="task-item">
+                    <strong>团队订单 · 8 人</strong>
+                    <p>已预登记，需要安排相邻双床房和发票信息。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kanban-column">
+                <h4>在住处理中</h4>
+                <div class="task-list">
+                  <div class="task-item">
+                    <strong>赵女士 · 1506</strong>
+                    <p>续住 1 晚，前台已调整订单金额并同步房态。</p>
+                  </div>
+                  <div class="task-item">
+                    <strong>刘先生 · 1209</strong>
+                    <p>申请加床服务，等待客房部确认库存。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kanban-column">
+                <h4>待完成退房</h4>
+                <div class="task-list">
+                  <div class="task-item">
+                    <strong>李女士 · 1208</strong>
+                    <p>房卡已回收，等待保洁反馈迷你吧消费记录。</p>
+                  </div>
+                  <div class="task-item">
+                    <strong>陈女士 · 1801</strong>
+                    <p>押金退回完成，可将房态改为待清扫。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="three-column">
+            <article class="board-card">
+              <div class="summary-head">
+                <h3>22</h3>
+                <span class="tag success">已入住</span>
+              </div>
+              <p class="helper">今天已成功办理入住的订单数量。</p>
+            </article>
+            <article class="board-card">
+              <div class="summary-head">
+                <h3>7</h3>
+                <span class="tag warning">待退房</span>
+              </div>
+              <p class="helper">当前仍需前台或客房部协同完成的退房任务。</p>
+            </article>
+            <article class="board-card">
+              <div class="summary-head">
+                <h3>12</h3>
+                <span class="tag brand">待清扫</span>
+              </div>
+              <p class="helper">退房后待清扫房间，影响后续可售库存。</p>
+            </article>
+          </section>
+        </section>
+
+        <section class="page" id="page-notices" data-title="公告统计" data-subtitle="展示系统公告、经营统计和近期待办事项。">
+          <section class="chart-grid">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>经营统计</h3>
+                  <p>适合后续接后台统计接口，展示营收和房型表现</p>
+                </div>
+                <button class="button" data-action="export-report" type="button">导出报表</button>
+              </div>
+
+              <div class="bar-group">
+                <div class="bar-item">
+                  <div class="stat-row"><span>本周平均入住率</span><span>84%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 84%;"></div></div>
+                </div>
+                <div class="bar-item">
+                  <div class="stat-row"><span>小程序转化率</span><span>67%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 67%;"></div></div>
+                </div>
+                <div class="bar-item">
+                  <div class="stat-row"><span>复住用户比例</span><span>32%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 32%;"></div></div>
+                </div>
+                <div class="bar-item">
+                  <div class="stat-row"><span>好评订单占比</span><span>93%</span></div>
+                  <div class="bar-track"><div class="bar-fill" style="width: 93%;"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>本周数据卡</h3>
+                  <p>适合答辩时强调系统统计分析功能</p>
+                </div>
+              </div>
+              <div class="stat-list">
+                <div class="stat-item">
+                  <div class="summary-head">
+                    <h3>¥ 126,400</h3>
+                    <span class="tag success">周营收</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="summary-head">
+                    <h3>312</h3>
+                    <span class="tag brand">有效订单</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <div class="summary-head">
+                    <h3>18</h3>
+                    <span class="tag warning">待处理咨询</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="two-column">
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>公告发布</h3>
+                  <p>模拟后台发布公告并同步到小程序首页的功能</p>
+                </div>
+              </div>
+
+              <div class="field-stack" style="display: grid;">
+                <div class="field">
+                  <label for="noticeTitle">公告标题</label>
+                  <input id="noticeTitle" type="text" value="五一假期入住温馨提示">
+                </div>
+                <div class="field">
+                  <label for="noticeLevel">公告级别</label>
+                  <select id="noticeLevel">
+                    <option>普通通知</option>
+                    <option>重要提醒</option>
+                    <option>营销活动</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="noticeContent">公告内容</label>
+                  <textarea id="noticeContent">节假日期间入住高峰较多，请住客提前在小程序完成预登记，前台将优先办理已预登记住客的入住手续。</textarea>
+                </div>
+                <div class="hero-actions">
+                  <button class="button primary" data-action="publish-notice" type="button">发布公告</button>
+                  <button class="button" data-action="save-notice-draft" type="button">保存草稿</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-head">
+                <div>
+                  <h3>已发布公告</h3>
+                  <p>可直接扩展成公告管理列表</p>
+                </div>
+              </div>
+              <div class="notice-grid" id="noticeList">
+                <div class="notice-card">
+                  <div class="inline-head">
+                    <strong>五一节前排班提醒</strong>
+                    <span class="tag warning">重要</span>
+                  </div>
+                  <p>请前台与客房部在 4 月 30 日 18:00 前完成节前排班确认，保障高峰期接待效率。</p>
+                </div>
+                <div class="notice-card">
+                  <div class="inline-head">
+                    <strong>小程序预订功能升级</strong>
+                    <span class="tag brand">系统</span>
+                  </div>
+                  <p>后台价格修改后可实时同步前端展示，支持房型筛选、日期联动和优惠提示。</p>
+                </div>
+                <div class="notice-card">
+                  <div class="inline-head">
+                    <strong>周末连住优惠上线</strong>
+                    <span class="tag success">营销</span>
+                  </div>
+                  <p>住两晚及以上享受 95 折优惠，活动已同步到小程序首页轮播位。</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <div class="footer-note">毕业设计演示页 · 已支持多模块切换与基础前端交互 · 后续可继续拆分为 Vue 管理端页面</div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const pageMeta = {
+      dashboard: {
+        title: "工作台",
+        subtitle: "查看酒店今日运营概览、订单趋势和入住情况。"
+      },
+      "room-types": {
+        title: "房型管理",
+        subtitle: "管理房型价格、库存房间、可售状态和热门程度。"
+      },
+      orders: {
+        title: "订单中心",
+        subtitle: "查看预订记录、筛选订单状态，并演示支付与入住流程。"
+      },
+      checkin: {
+        title: "入住退房",
+        subtitle: "模拟前台登记、房间分配、退房结算和房态流转。"
+      },
+      notices: {
+        title: "公告统计",
+        subtitle: "展示系统公告、经营统计和近期待办事项。"
+      }
+    };
+
+    const menuItems = Array.from(document.querySelectorAll(".menu-item"));
+    const pages = Array.from(document.querySelectorAll(".page"));
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    const toast = document.getElementById("toast");
+    const roomFilterButtons = Array.from(document.querySelectorAll("[data-room-filter]"));
+    const roomCards = Array.from(document.querySelectorAll("[data-room-status]"));
+    const roomTypeVisibleCount = document.getElementById("roomTypeVisibleCount");
+    const orderKeyword = document.getElementById("orderKeyword");
+    const orderStatusFilter = document.getElementById("orderStatusFilter");
+    const orderRows = Array.from(document.querySelectorAll("#orderTableBody tr"));
+    const orderVisibleCount = document.getElementById("orderVisibleCount");
+    const globalSearch = document.getElementById("globalSearch");
+    let toastTimer = null;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    function activatePage(pageKey) {
+      const safeKey = pageMeta[pageKey] ? pageKey : "dashboard";
+      menuItems.forEach((item) => {
+        item.classList.toggle("active", item.dataset.page === safeKey);
+      });
+      pages.forEach((page) => {
+        page.classList.toggle("active", page.id === "page-" + safeKey);
+      });
+      pageTitle.textContent = pageMeta[safeKey].title;
+      pageSubtitle.textContent = pageMeta[safeKey].subtitle;
+      window.location.hash = safeKey;
+    }
+
+    function filterRoomTypes(filterValue) {
+      let visible = 0;
+      roomFilterButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.roomFilter === filterValue);
+      });
+      roomCards.forEach((card) => {
+        const show = filterValue === "all" || card.dataset.roomStatus === filterValue;
+        card.classList.toggle("hidden", !show);
+        if (show) visible += 1;
+      });
+      roomTypeVisibleCount.textContent = String(visible);
+    }
+
+    function filterOrders() {
+      const keyword = orderKeyword.value.trim().toLowerCase();
+      const status = orderStatusFilter.value;
+      let visible = 0;
+
+      orderRows.forEach((row) => {
+        const statusMatch = status === "all" || row.dataset.status === status;
+        const keywordMatch = !keyword || row.dataset.search.toLowerCase().includes(keyword);
+        const show = statusMatch && keywordMatch;
+        row.classList.toggle("hidden", !show);
+        if (show) visible += 1;
+      });
+
+      orderVisibleCount.textContent = String(visible);
+    }
+
+    function applyGlobalSearch() {
+      const keyword = globalSearch.value.trim().toLowerCase();
+      if (!keyword) {
+        activatePage("dashboard");
+        return;
+      }
+      activatePage("orders");
+      orderKeyword.value = keyword;
+      orderStatusFilter.value = "all";
+      filterOrders();
+      showToast("已跳转到订单中心并按关键词筛选");
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const text = now.toLocaleTimeString("zh-CN", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      document.getElementById("liveClock").textContent = text;
+    }
+
+    menuItems.forEach((item) => {
+      item.addEventListener("click", () => {
+        activatePage(item.dataset.page);
+      });
+    });
+
+    document.querySelectorAll("[data-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activatePage(button.dataset.jump);
+      });
+    });
+
+    roomFilterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        filterRoomTypes(button.dataset.roomFilter);
+      });
+    });
+
+    orderKeyword.addEventListener("input", filterOrders);
+    orderStatusFilter.addEventListener("change", filterOrders);
+
+    document.getElementById("resetOrderFilter").addEventListener("click", () => {
+      orderKeyword.value = "";
+      orderStatusFilter.value = "all";
+      filterOrders();
+      showToast("订单筛选已重置");
+    });
+
+    globalSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        applyGlobalSearch();
+      }
+    });
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const actionMessages = {
+          sync: "今日数据已同步，页面指标已刷新。",
+          "add-room-type": "已打开新增房型流程示意，后续可接弹窗表单。",
+          "export-room-types": "房型表导出成功示意，可接 Excel 导出接口。",
+          "create-order": "已进入新建预订流程示意，后续可接订单录入表单。",
+          "submit-checkin": "入住登记提交成功示意，后续可接后端入住接口。",
+          "save-draft": "入住登记草稿已保存。",
+          "publish-notice": "公告已发布，并已同步到小程序首页示意。",
+          "save-notice-draft": "公告草稿已保存。",
+          "export-report": "统计报表导出成功示意。"
+        };
+        showToast(actionMessages[button.dataset.action] || "操作成功");
+      });
+    });
+
+    const initialHash = window.location.hash.replace("#", "");
+    activatePage(initialHash || "dashboard");
+    filterRoomTypes("all");
+    filterOrders();
+    updateClock();
+    window.setInterval(updateClock, 1000 * 30);
+  </script>
+  <script>
+    (() => {
+      const API_BASE_URL = "http://127.0.0.1:8080/api";
+      const adminState = {
+        rooms: [],
+        orders: [],
+        notices: [],
+        dashboard: null
+      };
+
+      const orderStatusMeta = {
+        upcoming: { text: "待入住", className: "pending" },
+        staying: { text: "在住", className: "active" },
+        finished: { text: "已完成", className: "finished" },
+        cancelled: { text: "已取消", className: "cancelled" }
+      };
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function money(value) {
+        return `¥${Number(value || 0).toFixed(0)}`;
+      }
+
+      function toDateText(value) {
+        return value || "-";
+      }
+
+      async function apiRequest(path, options = {}) {
+        const response = await fetch(`${API_BASE_URL}${path}`, {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          ...options
+        });
+        const body = await response.json();
+        if (!response.ok || (body.code !== undefined && body.code !== 200 && body.code !== 0)) {
+          throw new Error(body.message || "接口请求失败");
+        }
+        return body.data === undefined ? body : body.data;
+      }
+
+      function normalizeRoomStatus(status) {
+        if (status === "budget") return "low";
+        return status || "steady";
+      }
+
+      function renderRoomGrid() {
+        const grid = document.getElementById("roomTypeGrid");
+        if (!grid) return;
+
+        grid.innerHTML = adminState.rooms.map((room) => {
+          const total = Number(room.totalRooms || 0);
+          const available = Number(room.availableRooms || 0);
+          const occupied = Math.max(total - available, 0);
+          const rate = total > 0 ? Math.round((occupied / total) * 1000) / 10 : 0;
+          const status = normalizeRoomStatus(room.status);
+          const tagClass = status === "hot" ? "success" : status === "low" ? "warning" : "brand";
+
+          return `
+            <article class="room-card" data-room-status="${escapeHtml(status)}">
+              <div class="inline-head">
+                <strong>${escapeHtml(room.name)}</strong>
+                <span class="tag ${tagClass}">${escapeHtml(room.tag || room.status || "启用")}</span>
+              </div>
+              <p>${escapeHtml(room.summary || "暂无房型说明")}</p>
+              <div class="progress"><span style="width: ${Math.min(rate, 100)}%;"></span></div>
+              <div class="room-meta">
+                <span>入住率 ${rate}%</span>
+                <span>标准价 ${money(room.price)}</span>
+              </div>
+              <div class="room-meta">
+                <span>总房间 ${total}</span>
+                <span>可售 ${available}</span>
+                <span>${escapeHtml(room.bed || "-")}</span>
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        renderRoomSummary();
+        filterBackendRooms(document.querySelector("[data-room-filter].active")?.dataset.roomFilter || "all");
+      }
+
+      function renderRoomSummary() {
+        const cards = Array.from(document.querySelectorAll("#page-room-types .summary-card"));
+        if (cards.length < 4) return;
+        const enabled = adminState.rooms.filter((room) => room.enabled !== false);
+        const totalAvailable = enabled.reduce((sum, room) => sum + Number(room.availableRooms || 0), 0);
+        const totalRooms = enabled.reduce((sum, room) => sum + Number(room.totalRooms || 0), 0);
+        const occupied = Math.max(totalRooms - totalAvailable, 0);
+
+        cards[0].querySelector("h3").textContent = String(enabled.length);
+        cards[0].querySelector(".helper").textContent = `当前启用 ${enabled.length} 种房型，可在后台统一维护价格和库存。`;
+        cards[1].querySelector("h3").textContent = String(totalAvailable);
+        cards[1].querySelector(".helper").textContent = `当前可售房间共 ${totalAvailable} 间。`;
+        cards[2].querySelector("h3").textContent = String(occupied);
+        cards[2].querySelector(".helper").textContent = `当前已预订或在住房间共 ${occupied} 间。`;
+        cards[3].querySelector("h3").textContent = String(adminState.rooms.filter((room) => room.enabled === false).length);
+        cards[3].querySelector(".helper").textContent = "后端已支持房型下架，删除操作会改为停售。";
+      }
+
+      function filterBackendRooms(filterValue) {
+        const cards = Array.from(document.querySelectorAll("#roomTypeGrid [data-room-status]"));
+        let visible = 0;
+        roomFilterButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.roomFilter === filterValue);
+        });
+        cards.forEach((card) => {
+          const show = filterValue === "all" || card.dataset.roomStatus === filterValue;
+          card.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        roomTypeVisibleCount.textContent = String(visible);
+      }
+
+      function renderOrders() {
+        orderStatusFilter.innerHTML = `
+          <option value="all">全部状态</option>
+          <option value="upcoming">待入住</option>
+          <option value="staying">在住</option>
+          <option value="finished">已完成</option>
+          <option value="cancelled">已取消</option>
+        `;
+
+        const tbody = document.getElementById("orderTableBody");
+        if (!tbody) return;
+        tbody.innerHTML = adminState.orders.map((order) => {
+          const status = order.status || "upcoming";
+          const meta = orderStatusMeta[status] || { text: status, className: "pending" };
+          const search = `${order.id} ${order.guestName} ${order.roomTypeName} ${order.guestPhone}`;
+          return `
+            <tr data-status="${escapeHtml(status)}" data-search="${escapeHtml(search)}">
+              <td>${escapeHtml(order.id)}</td>
+              <td>${escapeHtml(order.guestName || "住客")}</td>
+              <td>${escapeHtml(order.roomTypeName || "-")}</td>
+              <td>${money(order.totalAmount)}</td>
+              <td>${toDateText(order.checkInDate)} 至 ${toDateText(order.checkOutDate)}</td>
+              <td><span class="status ${meta.className}">${meta.text}</span></td>
+            </tr>
+          `;
+        }).join("");
+        document.querySelector("#page-orders .table-meta").textContent = `共 ${adminState.orders.length} 条后端数据`;
+        filterBackendOrders();
+      }
+
+      function filterBackendOrders() {
+        const keyword = orderKeyword.value.trim().toLowerCase();
+        const status = orderStatusFilter.value;
+        const rows = Array.from(document.querySelectorAll("#orderTableBody tr"));
+        let visible = 0;
+
+        rows.forEach((row) => {
+          const statusMatch = status === "all" || row.dataset.status === status;
+          const keywordMatch = !keyword || row.dataset.search.toLowerCase().includes(keyword);
+          const show = statusMatch && keywordMatch;
+          row.classList.toggle("hidden", !show);
+          if (show) visible += 1;
+        });
+        orderVisibleCount.textContent = String(visible);
+      }
+
+      function renderNotices() {
+        const noticeList = document.getElementById("noticeList");
+        if (!noticeList) return;
+        noticeList.innerHTML = adminState.notices.map((notice) => `
+          <div class="notice-card">
+            <div class="inline-head">
+              <strong>${escapeHtml(notice.title)}</strong>
+              <span class="tag ${notice.level && notice.level.includes("重要") ? "warning" : "brand"}">${escapeHtml(notice.level || "公告")}</span>
+            </div>
+            <p>${escapeHtml(notice.content)}</p>
+          </div>
+        `).join("");
+
+        const announces = document.querySelector("#page-dashboard .announce-list");
+        if (announces) {
+          announces.innerHTML = adminState.notices.slice(0, 2).map((notice) => `
+            <div class="announce">
+              <strong>${escapeHtml(notice.title)}</strong>
+              <p>${escapeHtml(notice.content)}</p>
+            </div>
+          `).join("");
+        }
+      }
+
+      function renderDashboard() {
+        const dashboard = adminState.dashboard || {};
+        const metrics = dashboard.metrics || {};
+        const metricCards = Array.from(document.querySelectorAll("#page-dashboard .metric-card"));
+        const trendValues = Array.from(document.querySelectorAll("#page-dashboard .trend-card .trend-row strong"));
+
+        if (trendValues[0]) trendValues[0].textContent = money(metrics.todayRevenue);
+        if (trendValues[1]) trendValues[1].textContent = metrics.occupancyRate || "0%";
+
+        if (metricCards[0]) metricCards[0].querySelector("strong").textContent = String(metrics.todayOrders ?? adminState.orders.length);
+        if (metricCards[1]) metricCards[1].querySelector("strong").textContent = metrics.occupancyRate || "0%";
+        if (metricCards[2]) metricCards[2].querySelector("strong").textContent = String(metrics.pendingCheckout ?? 0);
+        if (metricCards[3]) metricCards[3].querySelector("strong").textContent = String(metrics.exceptionOrders ?? 0);
+
+        renderDashboardRooms(dashboard.roomTypes || adminState.rooms);
+        renderDashboardLatestOrders(dashboard.latestOrders || adminState.orders.slice(0, 5));
+      }
+
+      function renderDashboardRooms(rooms) {
+        const container = document.querySelector("#page-dashboard .grid-two");
+        if (!container) return;
+        container.innerHTML = rooms.slice(0, 4).map((room) => {
+          const total = Number(room.totalRooms || 0);
+          const available = Number(room.availableRooms || 0);
+          const occupied = Math.max(total - available, 0);
+          const rate = total > 0 ? Math.round((occupied / total) * 1000) / 10 : 0;
+          return `
+            <div class="mini-panel">
+              <div class="occupancy-header">
+                <strong>${escapeHtml(room.name)}</strong>
+                <span>${occupied} / ${total}</span>
+              </div>
+              <div class="progress"><span style="width: ${Math.min(rate, 100)}%;"></span></div>
+              <div class="split">
+                <span>入住率 ${rate}%</span>
+                <span>均价 ${money(room.price)}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderDashboardLatestOrders(orders) {
+        const tbody = document.querySelector("#page-dashboard table tbody");
+        if (!tbody) return;
+        tbody.innerHTML = orders.slice(0, 5).map((order) => {
+          const meta = orderStatusMeta[order.status] || { text: order.status || "待入住", className: "pending" };
+          return `
+            <tr>
+              <td>${escapeHtml(order.id)}</td>
+              <td>${escapeHtml(order.guestName || "住客")}</td>
+              <td>${escapeHtml(order.roomTypeName || "-")}</td>
+              <td>${toDateText(order.checkInDate)}</td>
+              <td><span class="status ${meta.className}">${meta.text}</span></td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      async function loadAdminData(showMessage = false) {
+        try {
+          const [dashboard, rooms, orders, notices] = await Promise.all([
+            apiRequest("/admin/dashboard"),
+            apiRequest("/admin/room-types"),
+            apiRequest("/admin/orders"),
+            apiRequest("/admin/notices")
+          ]);
+          adminState.dashboard = dashboard;
+          adminState.rooms = rooms;
+          adminState.orders = orders;
+          adminState.notices = notices;
+          renderDashboard();
+          renderRoomGrid();
+          renderOrders();
+          renderNotices();
+          if (showMessage) showToast("后端数据已同步");
+        } catch (error) {
+          showToast(`后端连接失败：${error.message}`);
+        }
+      }
+
+      async function publishNotice() {
+        const title = document.getElementById("noticeTitle").value.trim();
+        const level = document.getElementById("noticeLevel").value.trim();
+        const content = document.getElementById("noticeContent").value.trim();
+        if (!title || !content) {
+          showToast("请填写公告标题和内容");
+          return;
+        }
+        await apiRequest("/admin/notices", {
+          method: "POST",
+          body: JSON.stringify({ title, level, content, published: true })
+        });
+        showToast("公告已发布到后端并同步小程序");
+        await loadAdminData();
+      }
+
+      async function submitCheckin() {
+        const guestName = document.getElementById("guestName").value.trim();
+        const guestPhone = document.getElementById("guestPhone").value.trim();
+        const roomName = document.getElementById("checkRoomType").value;
+        const roomNo = document.getElementById("checkRoomNo").value;
+        const checkInDate = document.getElementById("arriveDate").value;
+        const checkOutDate = document.getElementById("leaveDate").value;
+        const room = adminState.rooms.find((item) => item.name === roomName) || adminState.rooms[0];
+
+        if (!guestName || !/^1\d{10}$/.test(guestPhone)) {
+          showToast("请填写住客姓名和 11 位手机号");
+          return;
+        }
+        if (!room) {
+          showToast("后端暂无可用房型");
+          return;
+        }
+
+        const start = new Date(checkInDate);
+        const end = new Date(checkOutDate);
+        const nights = Math.max(1, Math.round((end - start) / (24 * 60 * 60 * 1000)));
+        const order = await apiRequest("/admin/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            roomTypeId: room.id,
+            roomTypeName: room.name,
+            guestName,
+            guestPhone,
+            stayNights: nights,
+            totalAmount: Number(room.price || 0) * nights,
+            checkInDate,
+            checkOutDate
+          })
+        });
+        await apiRequest(`/admin/orders/${encodeURIComponent(order.id)}/check-in`, {
+          method: "POST",
+          body: JSON.stringify({ roomNo })
+        });
+        showToast(`入住登记成功，订单号 ${order.id}`);
+        await loadAdminData();
+      }
+
+      document.addEventListener("click", async (event) => {
+        const button = event.target.closest("[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+        if (!["sync", "publish-notice", "submit-checkin", "create-order"].includes(action)) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try {
+          if (action === "sync") await loadAdminData(true);
+          if (action === "publish-notice") await publishNotice();
+          if (action === "submit-checkin") await submitCheckin();
+          if (action === "create-order") {
+            activatePage("checkin");
+            document.getElementById("guestName").focus();
+          }
+        } catch (error) {
+          showToast(`操作失败：${error.message}`);
+        }
+      }, true);
+
+      roomFilterButtons.forEach((button) => {
+        button.addEventListener("click", () => filterBackendRooms(button.dataset.roomFilter));
+      });
+      orderKeyword.addEventListener("input", filterBackendOrders);
+      orderStatusFilter.addEventListener("change", filterBackendOrders);
+
+      loadAdminData(true);
+    })();
+  </script>
+</body>
+</html>

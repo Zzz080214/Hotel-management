@@ -1,0 +1,43 @@
+<view class="container">
+  <view class="header card">
+    <view class="section-title">房型列表</view>
+    <view class="section-subtitle">按照价格与定位筛选，适合演示小程序订房流程</view>
+    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+    <view class="tab-row">
+      <block wx:for="{{tabs}}" wx:key="key">
+        <view class="tab-pill {{activeTab === item.key ? 'tab-pill-active' : ''}}" data-key="{{item.key}}" bindtap="switchTab">
+          {{item.text}}
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <block wx:for="{{visibleRooms}}" wx:key="id">
+    <view class="room-card card" bindtap="goBooking" data-id="{{item.id}}">
+      <image class="room-image" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="room-content">
+        <view class="room-top">
+          <view>
+            <view class="room-name">{{item.name}}</view>
+            <view class="room-meta">{{item.area}} · {{item.bed}} · {{item.breakfast}}</view>
+          </view>
+          <view class="pill pill-brand">{{item.tag}}</view>
+        </view>
+        <view class="room-summary">{{item.summary}}</view>
+        <view class="feature-row">
+          <block wx:for="{{item.features}}" wx:key="*this">
+            <view class="feature-tag">{{item}}</view>
+          </block>
+        </view>
+        <view class="bottom-row">
+          <view>
+            <text class="price-symbol">¥</text>
+            <text class="price-num">{{item.price}}</text>
+            <text class="price-note">/ 晚</text>
+          </view>
+          <view class="reserve-btn">预订</view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

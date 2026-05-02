@@ -1,0 +1,93 @@
+<view class="container">
+  <view class="hero card">
+    <view class="hero-badge">微信小程序订房</view>
+    <view class="hero-title">悦栖酒店</view>
+    <view class="hero-subtitle">毕业设计演示版用户端，支持看房型、下单、查订单。</view>
+    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+    <view class="hero-actions">
+      <view class="primary-btn action-btn" bindtap="goRoomList">立即订房</view>
+      <view class="ghost-btn action-btn" bindtap="goRoomList">查看房型</view>
+    </view>
+    <view class="hero-stats">
+      <block wx:for="{{heroStats}}" wx:key="label">
+        <view class="hero-stat">
+          <view class="hero-stat-value">{{item.value}}</view>
+          <view class="hero-stat-label">{{item.label}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">快捷服务</view>
+        <view class="section-subtitle">把小程序常用入口先补齐</view>
+      </view>
+    </view>
+    <view class="quick-grid">
+      <block wx:for="{{quickActions}}" wx:key="title">
+        <view class="quick-item card" bindtap="handleQuickAction" data-path="{{item.path}}" data-action="{{item.action}}">
+          <view class="quick-title">{{item.title}}</view>
+          <view class="quick-subtitle">{{item.subtitle}}</view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">推荐房型</view>
+        <view class="section-subtitle">首页直接展示高转化房型</view>
+      </view>
+      <view class="more-link" bindtap="goRoomList">全部房型</view>
+    </view>
+    <block wx:for="{{roomTypes}}" wx:key="id">
+      <view class="room-card card" bindtap="goBooking" data-id="{{item.id}}">
+        <image class="room-image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="room-body">
+          <view class="room-top">
+            <view>
+              <view class="room-name">{{item.name}}</view>
+              <view class="room-meta">{{item.area}} · {{item.bed}} · {{item.breakfast}}</view>
+            </view>
+            <view class="pill pill-brand">{{item.tag}}</view>
+          </view>
+          <view class="room-summary">{{item.summary}}</view>
+          <view class="feature-row">
+            <block wx:for="{{item.features}}" wx:key="*this">
+              <view class="feature-tag">{{item}}</view>
+            </block>
+          </view>
+          <view class="room-bottom">
+            <view class="price-wrap">
+              <text class="price-symbol">¥</text>
+              <text class="price-num">{{item.price}}</text>
+              <text class="price-note">起 / 晚</text>
+            </view>
+            <view class="book-now">立即预订</view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">入住公告</view>
+        <view class="section-subtitle">给用户展示节假日与活动信息</view>
+      </view>
+    </view>
+    <block wx:for="{{notices}}" wx:key="id">
+      <view class="notice-card card">
+        <view class="notice-top">
+          <view class="notice-title">{{item.title}}</view>
+          <view class="pill {{item.level === '重要' ? 'pill-warning' : 'pill-success'}}">{{item.level}}</view>
+        </view>
+        <view class="notice-content">{{item.content}}</view>
+      </view>
+    </block>
+  </view>
+</view>

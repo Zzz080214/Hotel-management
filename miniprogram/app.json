@@ -1,0 +1,44 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/room-list/room-list",
+    "pages/booking/booking",
+    "pages/face-checkin/face-checkin",
+    "pages/orders/orders",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "悦栖酒店",
+    "navigationBarBackgroundColor": "#f6efe6",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6efe6",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8a735e",
+    "selectedColor": "#9b5b28",
+    "backgroundColor": "#fff9f0",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/orders/orders",
+        "text": "订单"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "style": "v2",
+  "permission": {
+    "scope.camera": {
+      "desc": "用于模拟刷脸自助入住"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,55 @@
+<view class="face-page">
+  <view class="camera-card">
+    <camera class="camera-view" device-position="front" flash="off"></camera>
+    <view class="camera-shade"></view>
+    <view class="face-frame {{faceDetected ? 'face-frame-active' : ''}}">
+      <view class="scan-line" wx:if="{{status === 'scanning' || status === 'comparing'}}"></view>
+      <view class="corner corner-lt"></view>
+      <view class="corner corner-rt"></view>
+      <view class="corner corner-lb"></view>
+      <view class="corner corner-rb"></view>
+    </view>
+    <view class="detect-badge {{faceDetected ? 'detect-badge-ok' : ''}}">
+      {{faceDetected ? '已检测到人脸' : '等待人脸进入框内'}}
+    </view>
+  </view>
+
+  <view class="status-card card">
+    <view class="section-title">人脸识别入住</view>
+    <view class="section-subtitle">订单号：{{orderId}}</view>
+    <view class="status-line">
+      <view class="status-dot {{status}}"></view>
+      <text>{{statusText}}</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progress}}%;"></view>
+    </view>
+    <view class="progress-text">{{progress}}%</view>
+
+    <view class="loading-row" wx:if="{{comparing}}">
+      <view class="loading-ring"></view>
+      <text>正在比对身份信息，请稍候</text>
+    </view>
+
+    <view class="success-box" wx:if="{{status === 'success'}}">
+      <view class="success-title">自助入住完成</view>
+      <view class="success-room">{{roomNo}}</view>
+      <view class="success-note">现在可以生成房间动态密码，也可以演示自助退房</view>
+    </view>
+
+    <view class="fail-box" wx:if="{{status === 'failed'}}">
+      <view class="fail-title">核验未通过</view>
+      <view class="fail-note">{{failText}}</view>
+    </view>
+
+    <view class="action-row">
+      <view class="primary-btn action-btn" wx:if="{{status === 'ready' || status === 'failed'}}" bindtap="handlePrimaryAction">
+        {{status === 'failed' ? '重新识别' : '开始扫脸'}}
+      </view>
+      <view class="success-actions" wx:if="{{status === 'success'}}">
+        <view class="primary-btn action-btn" bindtap="goPassword">生成房间密码</view>
+        <view class="ghost-btn action-btn" bindtap="goCheckout">自助退房</view>
+      </view>
+    </view>
+  </view>
+</view>

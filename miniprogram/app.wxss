@@ -1,0 +1,100 @@
+page {
+  min-height: 100%;
+  background: linear-gradient(180deg, #f7f2ea 0%, #efe4d5 100%);
+  color: #352416;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.container {
+  padding: 28rpx 24rpx 40rpx;
+}
+
+.card {
+  background: rgba(255, 250, 241, 0.96);
+  border: 1rpx solid rgba(106, 71, 35, 0.08);
+  border-radius: 28rpx;
+  box-shadow: 0 18rpx 36rpx rgba(88, 53, 20, 0.08);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #352416;
+}
+
+.section-subtitle {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #7c6651;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92rpx;
+  height: 48rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.pill-brand {
+  color: #7f4318;
+  background: rgba(185, 107, 44, 0.12);
+}
+
+.pill-success {
+  color: #2f7d55;
+  background: rgba(47, 125, 85, 0.12);
+}
+
+.pill-warning {
+  color: #c27a26;
+  background: rgba(194, 122, 38, 0.14);
+}
+
+.pill-danger {
+  color: #b44a3b;
+  background: rgba(180, 74, 59, 0.12);
+}
+
+.primary-btn,
+.ghost-btn {
+  height: 86rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.primary-btn {
+  color: #fff8ef;
+  background: linear-gradient(135deg, #bc7335, #7f4318);
+  box-shadow: 0 14rpx 26rpx rgba(127, 67, 24, 0.18);
+}
+
+.ghost-btn {
+  color: #7f4318;
+  background: rgba(255, 250, 241, 0.85);
+  border: 1rpx solid rgba(127, 67, 24, 0.14);
+}
+
+.muted {
+  color: #7c6651;
+}
+
+.price {
+  color: #9b5b28;
+  font-weight: 700;
+}

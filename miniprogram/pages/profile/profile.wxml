@@ -1,0 +1,166 @@
+<view class="container">
+  <view class="card login-card">
+    <view class="section-title">微信授权登录</view>
+    <view class="section-subtitle">授权后同步你的会员资料与预订账号</view>
+    <view class="login-status" wx:if="{{currentUser}}">
+      <view class="login-avatar">{{avatarText}}</view>
+      <view>
+        <view class="login-name">{{currentUser.nickname}}</view>
+        <view class="login-meta">{{currentUser.openid}}</view>
+      </view>
+    </view>
+    <view class="primary-btn login-btn" bindtap="loginCurrentUser">{{currentUser ? '重新授权登录' : '微信授权登录'}}</view>
+  </view>
+
+  <view class="card profile-card">
+    <view class="avatar">{{avatarText}}</view>
+    <view class="profile-name">{{nickname}}</view>
+    <view class="profile-desc">{{description}}</view>
+    <view class="source-line" wx:if="{{currentUser}}">当前账号：{{currentUser.nickname}}</view>
+    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+    <view class="profile-stats">
+      <block wx:for="{{stats}}" wx:key="label">
+        <view class="stat-box">
+          <view class="stat-num">{{item.value}}</view>
+          <view class="stat-label">{{item.label}}</view>
+        </view>
+      </block>
+    </view>
+    <view class="ghost-btn logout-btn" wx:if="{{currentUser}}" bindtap="logoutCurrentUser">退出登录</view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view>
+        <view class="section-title">常用功能</view>
+        <view class="section-subtitle">个人中心保留资料与服务入口</view>
+      </view>
+    </view>
+    <block wx:for="{{menuItems}}" wx:key="title">
+      <view class="card menu-card" bindtap="showFeature" data-title="{{item.title}}">
+        <view>
+          <view class="menu-title">{{item.title}}</view>
+          <view class="menu-subtitle">{{item.subtitle}}</view>
+        </view>
+        <view class="menu-arrow">›</view>
+      </view>
+    </block>
+  </view>
+</view>
+
+<view class="feature-mask" wx:if="{{activePanel}}" bindtap="closePanel">
+  <view class="feature-panel" catchtap="noop">
+    <view class="panel-head">
+      <view>
+        <view class="panel-title">{{activePanelTitle}}</view>
+        <view class="panel-subtitle" wx:if="{{activePanel === 'guests'}}">保存后预订时可快速填写入住资料</view>
+        <view class="panel-subtitle" wx:if="{{activePanel === 'password'}}">为当前在住订单生成 30 分钟有效动态密码</view>
+        <view class="panel-subtitle" wx:if="{{activePanel === 'checkout'}}">核对在住订单后可一键完成退房</view>
+        <view class="panel-subtitle" wx:if="{{activePanel === 'coupons'}}">可领取权益会同步保存在本机演示账号</view>
+        <view class="panel-subtitle" wx:if="{{activePanel === 'service'}}">前台咨询、入住协助与电话联系</view>
+      </view>
+      <view class="panel-close" bindtap="closePanel">×</view>
+    </view>
+
+    <view wx:if="{{activePanel === 'guests'}}">
+      <view class="guest-form">
+        <input class="form-input" placeholder="入住人姓名" value="{{guestForm.name}}" data-field="name" bindinput="handleGuestInput" />
+        <input class="form-input" placeholder="手机号" type="number" maxlength="11" value="{{guestForm.phone}}" data-field="phone" bindinput="handleGuestInput" />
+        <input class="form-input" placeholder="证件号" value="{{guestForm.idCard}}" data-field="idCard" bindinput="handleGuestInput" />
+        <view class="primary-btn form-submit" bindtap="saveGuest">{{guestForm.id ? '保存修改' : '新增入住人'}}</view>
+      </view>
+
+      <block wx:for="{{guestList}}" wx:key="id">
+        <view class="guest-item">
+          <view class="guest-top">
+            <view class="guest-name">{{item.name}}</view>
+            <view class="pill pill-brand" wx:if="{{item.isDefault}}">默认</view>
+          </view>
+          <view class="guest-line">{{item.phone}}</view>
+          <view class="guest-line">{{item.idCard}}</view>
+          <view class="guest-actions">
+            <view class="guest-action" wx:if="{{!item.isDefault}}" data-id="{{item.id}}" bindtap="setDefaultGuest">设默认</view>
+            <view class="guest-action" data-id="{{item.id}}" bindtap="editGuest">编辑</view>
+            <view class="guest-action danger" data-id="{{item.id}}" bindtap="deleteGuest">删除</view>
+          </view>
+        </view>
+      </block>
+      <view class="panel-empty" wx:if="{{!guestList.length}}">暂无入住人资料</view>
+    </view>
+
+    <view wx:if="{{activePanel === 'password'}}">
+      <view class="password-card" wx:if="{{currentStayOrder}}">
+        <view class="password-meta">
+          <text>订单号</text>
+          <text>{{currentStayOrder.id}}</text>
+        </view>
+        <view class="password-meta">
+          <text>房型</text>
+          <text>{{currentStayOrder.roomName}}</text>
+        </view>
+        <view class="password-room">{{currentStayOrder.roomNo || '房号待分配'}}</view>
+        <view class="password-code">{{roomPassword || '点击生成'}}</view>
+        <view class="password-expire">有效期至 {{passwordExpireAt || '--:--'}}</view>
+      </view>
+      <view class="panel-empty" wx:else>暂无在住订单，请先完成刷脸入住</view>
+      <view class="service-actions" wx:if="{{currentStayOrder}}">
+        <view class="primary-btn service-btn" bindtap="refreshRoomPassword">生成密码</view>
+        <view class="ghost-btn service-btn" bindtap="copyRoomPassword">复制密码</view>
+      </view>
+    </view>
+
+    <view wx:if="{{activePanel === 'checkout'}}">
+      <block wx:for="{{stayOrders}}" wx:key="id">
+        <view class="checkout-item">
+          <view>
+            <view class="checkout-title">{{item.roomNo || '房号待分配'}} · {{item.guest}}</view>
+            <view class="checkout-line">{{item.roomName}} · {{item.id}}</view>
+            <view class="checkout-line">{{item.date}}</view>
+          </view>
+          <view class="checkout-btn" data-id="{{item.id}}" bindtap="doSelfCheckout">
+            {{checkoutLoading ? '处理中' : '退房'}}
+          </view>
+        </view>
+      </block>
+      <view class="panel-empty" wx:if="{{!stayOrders.length}}">暂无可退房的在住订单</view>
+    </view>
+
+    <view wx:if="{{activePanel === 'coupons'}}">
+      <block wx:for="{{couponList}}" wx:key="id">
+        <view class="coupon-item">
+          <view class="coupon-value">{{item.amount}}</view>
+          <view class="coupon-main">
+            <view class="coupon-title">{{item.title}}</view>
+            <view class="coupon-desc">{{item.threshold}}</view>
+            <view class="coupon-date">有效期至 {{item.expire}}</view>
+          </view>
+          <view class="coupon-action {{item.status === '已领取' ? 'coupon-action-disabled' : ''}}" data-id="{{item.id}}" bindtap="claimCoupon">
+            {{item.status === '已领取' ? '已领取' : '领取'}}
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view wx:if="{{activePanel === 'service'}}">
+      <view class="service-card">
+        <view class="service-row">
+          <text class="service-label">服务热线</text>
+          <text class="service-value">{{serviceInfo.phone}}</text>
+        </view>
+        <view class="service-row">
+          <text class="service-label">服务时间</text>
+          <text class="service-value">{{serviceInfo.hours}}</text>
+        </view>
+        <view class="service-row">
+          <text class="service-label">服务地点</text>
+          <text class="service-value">{{serviceInfo.address}}</text>
+        </view>
+      </view>
+      <view class="service-actions">
+        <view class="primary-btn service-btn" bindtap="callService">拨打电话</view>
+        <view class="ghost-btn service-btn" bindtap="copyServicePhone">复制电话</view>
+      </view>
+      <button class="ghost-btn native-contact" open-type="contact">在线客服</button>
+    </view>
+  </view>
+</view>

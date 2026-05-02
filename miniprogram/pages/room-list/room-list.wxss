@@ -1,0 +1,115 @@
+.header {
+  padding: 28rpx;
+}
+
+.source-line {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #9b5b28;
+}
+
+.tab-row {
+  display: flex;
+  gap: 14rpx;
+  flex-wrap: wrap;
+  margin-top: 22rpx;
+}
+
+.tab-pill {
+  padding: 0 22rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #7f4318;
+  background: rgba(185, 107, 44, 0.08);
+}
+
+.tab-pill-active {
+  color: #fff8ef;
+  background: linear-gradient(135deg, #bc7335, #7f4318);
+}
+
+.room-card {
+  overflow: hidden;
+  margin-top: 20rpx;
+}
+
+.room-image {
+  width: 100%;
+  height: 260rpx;
+}
+
+.room-content {
+  padding: 24rpx;
+}
+
+.room-top,
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.room-name {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.room-meta,
+.room-summary {
+  margin-top: 10rpx;
+  color: #7c6651;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.feature-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.feature-tag {
+  padding: 0 16rpx;
+  height: 42rpx;
+  line-height: 42rpx;
+  border-radius: 999rpx;
+  background: rgba(185, 107, 44, 0.08);
+  color: #7f4318;
+  font-size: 22rpx;
+}
+
+.bottom-row {
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.price-symbol {
+  font-size: 24rpx;
+  color: #9b5b28;
+}
+
+.price-num {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #9b5b28;
+}
+
+.price-note {
+  font-size: 22rpx;
+  color: #7c6651;
+}
+
+.reserve-btn {
+  min-width: 128rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  color: #fff8ef;
+  font-size: 24rpx;
+  font-weight: 700;
+  background: linear-gradient(135deg, #bc7335, #7f4318);
+}

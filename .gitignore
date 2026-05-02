@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+target/
+
+# Local Maven cache created inside this project
+.m2/
+
+# Runtime data, logs, and process files
+*.log
+*.pid
+backend/data/
+backend/.codex-logs/
+vue-admin/.codex-logs/
+
+# Browser/test automation profiles
+vue-admin/.edge-screenshot-profile/
+
+# Local-only environment and IDE/devtool config
+.env
+.env.*
+!.env.example
+project.private.config.json
+miniprogram/project.private.config.json
+
+# Generated screenshots and HTML dumps
+dashboard-*.png
+vue-admin-*-test.png
+vue-admin/current-vue-demo.png
+wechat-*.png
+vue-admin/dump-*.html
+
+# OS metadata
+.DS_Store
+Thumbs.db

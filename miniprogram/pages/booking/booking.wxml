@@ -1,0 +1,61 @@
+<view class="container" wx:if="{{room}}">
+  <view class="card summary-card">
+    <image class="summary-image" src="{{room.image}}" mode="aspectFill"></image>
+    <view class="summary-body">
+      <view class="summary-top">
+        <view>
+          <view class="summary-name">{{room.name}}</view>
+          <view class="summary-meta">{{room.area}} · {{room.bed}} · {{room.breakfast}}</view>
+        </view>
+        <view class="pill pill-brand">{{room.tag}}</view>
+      </view>
+      <view class="summary-text">{{room.summary}}</view>
+    </view>
+  </view>
+
+  <view class="card form-card">
+    <view class="section-title">入住信息</view>
+    <view class="section-subtitle">这里先用静态表单演示下单流程</view>
+    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+
+    <view class="field">
+      <view class="field-label">联系人</view>
+      <input class="field-input" value="{{contactName}}" placeholder="请输入姓名" data-field="contactName" bindinput="handleInput"></input>
+    </view>
+
+    <view class="field">
+      <view class="field-label">联系电话</view>
+      <input class="field-input" value="{{contactPhone}}" type="number" placeholder="请输入手机号" data-field="contactPhone" bindinput="handleInput"></input>
+    </view>
+
+    <view class="field">
+      <view class="field-label">入住晚数</view>
+      <slider min="0" max="4" step="1" show-value value="{{stayNights - 1}}" bindchange="handleNightChange" activeColor="#9b5b28" backgroundColor="#ead9c6"></slider>
+    </view>
+
+    <view class="info-box">
+      <view class="info-row">
+        <text>入住人数</text>
+        <text>{{room.occupancy}}</text>
+      </view>
+      <view class="info-row">
+        <text>早餐</text>
+        <text>{{room.breakfast}}</text>
+      </view>
+      <view class="info-row">
+        <text>可用权益</text>
+        <text>免费停车 / 延迟退房申请</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card total-card">
+    <view>
+      <view class="total-label">订单总额</view>
+      <view class="total-note">{{stayNights}} 晚 · {{room.name}}</view>
+    </view>
+    <view class="total-price">¥{{totalPrice}}</view>
+  </view>
+
+  <view class="primary-btn submit-btn" bindtap="submitOrder">提交订单</view>
+</view>

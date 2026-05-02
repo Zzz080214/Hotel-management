@@ -1,0 +1,58 @@
+<view class="container">
+  <view class="header card">
+    <view class="section-title">我的订单</view>
+    <view class="section-subtitle" wx:if="{{currentUser}}">{{currentUser.nickname}} 的订单记录</view>
+    <view class="section-subtitle" wx:else>请先到“我的”页面登录</view>
+    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+    <view class="tab-row">
+      <block wx:for="{{tabs}}" wx:key="key">
+        <view class="tab-pill {{activeTab === item.key ? 'tab-pill-active' : ''}}" bindtap="switchTab" data-key="{{item.key}}">
+          {{item.text}}
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <block wx:for="{{visibleOrders}}" wx:key="id">
+    <view class="order-card card" bindtap="showOrderDetail" data-id="{{item.id}}">
+      <view class="order-top">
+        <view>
+          <view class="order-id">{{item.id}}</view>
+          <view class="order-room">{{item.roomName}}</view>
+        </view>
+        <view class="pill {{item.status === 'finished' ? 'pill-success' : item.status === 'staying' ? 'pill-brand' : 'pill-warning'}}">{{item.statusText}}</view>
+      </view>
+      <view class="order-row">
+        <text class="muted">入住人</text>
+        <text>{{item.guest}}</text>
+      </view>
+      <view class="order-row">
+        <text class="muted">入住时间</text>
+        <text>{{item.date}}</text>
+      </view>
+      <view class="order-row">
+        <text class="muted">订单金额</text>
+        <text class="price">¥{{item.amount}}</text>
+      </view>
+      <view class="order-row" wx:if="{{item.roomNo}}">
+        <text class="muted">房号</text>
+        <text>{{item.roomNo}}</text>
+      </view>
+      <view class="order-actions" wx:if="{{item.status === 'upcoming'}}">
+        <view
+          class="face-btn"
+          catchtap="startFaceCheckin"
+          data-id="{{item.id}}"
+          data-guest="{{item.guest}}"
+          data-room-name="{{item.roomName}}"
+          data-amount="{{item.amount}}"
+          data-date="{{item.date}}"
+        >刷脸自助入住</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="empty-card card" wx:if="{{!visibleOrders.length}}">
+    当前筛选条件下暂无订单记录
+  </view>
+</view>
