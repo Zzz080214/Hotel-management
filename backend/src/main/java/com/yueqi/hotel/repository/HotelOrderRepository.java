@@ -13,9 +13,13 @@ public interface HotelOrderRepository extends JpaRepository<HotelOrder, String> 
 
     List<HotelOrder> findByStatusOrderByCreatedAtDesc(String status);
 
+    List<HotelOrder> findByStatusAndCheckOutDateLessThanEqual(String status, LocalDate checkOutDate);
+
     List<HotelOrder> findByUserPhoneOrderByCreatedAtDesc(String userPhone);
 
     List<HotelOrder> findByUserPhoneAndStatusOrderByCreatedAtDesc(String userPhone, String status);
+
+    List<HotelOrder> findByGuestIdCardOrderByCreatedAtDesc(String guestIdCard);
 
     List<HotelOrder> findByWxOpenidOrderByCreatedAtDesc(String wxOpenid);
 

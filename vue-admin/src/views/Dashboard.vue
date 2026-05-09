@@ -19,7 +19,7 @@
         <div class="hero-stats">
           <div class="hero-stat">
             <span>今日均房价</span>
-            <strong>¥428</strong>
+            <strong>¥426</strong>
           </div>
           <div class="hero-stat">
             <span>会员复购率</span>
@@ -46,9 +46,9 @@
           <div class="trend-graph" aria-hidden="true">
             <svg viewBox="0 0 300 80" preserveAspectRatio="none">
               <path d="M0,58 C28,52 40,28 70,30 C100,32 110,46 138,42 C164,38 177,12 206,18 C234,24 248,50 300,20"
-                fill="none" stroke="#9b5b28" stroke-width="4" stroke-linecap="round"></path>
+                fill="none" stroke="#b8945c" stroke-width="3" stroke-linecap="round"></path>
               <path d="M0,80 L0,58 C28,52 40,28 70,30 C100,32 110,46 138,42 C164,38 177,12 206,18 C234,24 248,50 300,20 L300,80 Z"
-                fill="rgba(185, 107, 44, 0.18)"></path>
+                fill="rgba(184, 148, 92, 0.16)"></path>
             </svg>
           </div>
         </div>

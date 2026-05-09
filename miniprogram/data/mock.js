@@ -2,7 +2,7 @@ const roomTypes = [
   {
     id: 1,
     name: "豪华大床房",
-    price: 428,
+    price: 426,
     area: "32m²",
     bed: "1.8米大床",
     breakfast: "双早",
@@ -78,9 +78,19 @@ const orderList = [
     wxOpenid: "dev-local-device",
     userPhone: "13800138000",
     guest: "张同学",
+    guestIdCard: "440101199901011234",
     roomName: "豪华大床房",
-    amount: 856,
+    amount: 809.4,
+    originalAmount: 852,
+    discountAmount: 42.6,
+    couponId: "coupon-stay",
+    couponTitle: "连住优惠券",
     date: "2026-05-01 至 2026-05-03",
+    checkInDate: "2026-05-01",
+    checkOutDate: "2026-05-03",
+    stayNights: 2,
+    paymentStatus: "paid",
+    paymentStatusText: "已支付",
     status: "upcoming",
     statusText: "待入住"
   },
@@ -89,9 +99,19 @@ const orderList = [
     wxOpenid: "dev-local-device",
     userPhone: "13800138001",
     guest: "赵女士",
+    guestIdCard: "440101199202022345",
     roomName: "豪华大床房",
-    amount: 1284,
+    amount: 1214.1,
+    originalAmount: 1278,
+    discountAmount: 63.9,
+    couponId: "coupon-stay",
+    couponTitle: "连住优惠券",
     date: "2026-05-01 至 2026-05-04",
+    checkInDate: "2026-05-01",
+    checkOutDate: "2026-05-04",
+    stayNights: 3,
+    paymentStatus: "paid",
+    paymentStatusText: "已支付",
     status: "staying",
     statusText: "在住中"
   },
@@ -100,9 +120,17 @@ const orderList = [
     wxOpenid: "dev-local-device",
     userPhone: "13800138002",
     guest: "陈女士",
+    guestIdCard: "440101198803033456",
     roomName: "钟点房",
     amount: 168,
+    originalAmount: 168,
+    discountAmount: 0,
     date: "2026-04-30",
+    checkInDate: "2026-04-30",
+    checkOutDate: "2026-05-01",
+    stayNights: 1,
+    paymentStatus: "paid",
+    paymentStatusText: "已支付",
     status: "finished",
     statusText: "已完成"
   }
@@ -170,7 +198,51 @@ function getMergedOrders(wxOpenid) {
   if (!wxOpenid) {
     return [];
   }
-  return [...getStoredOrders(), ...orderList].filter((item) => item.wxOpenid === wxOpenid);
+  const seen = new Set();
+  return [...getStoredOrders(), ...orderList]
+    .filter((item) => item.wxOpenid === wxOpenid)
+    .filter((item) => {
+      const id = String(item.id);
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+}
+
+function normalizeDateValue(value) {
+  if (!value) {
+    return null;
+  }
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function dateRangesOverlap(startA, endA, startB, endB) {
+  const aStart = normalizeDateValue(startA);
+  const aEnd = normalizeDateValue(endA);
+  const bStart = normalizeDateValue(startB);
+  const bEnd = normalizeDateValue(endB);
+  if (!aStart || !aEnd || !bStart || !bEnd) {
+    return false;
+  }
+  return aStart < bEnd && bStart < aEnd;
+}
+
+function findIdCardBookingConflict(payload) {
+  const idCard = String(payload.guestIdCard || "").toUpperCase();
+  if (!idCard) {
+    return null;
+  }
+
+  return [...getStoredOrders(), ...orderList].find((order) => {
+    if (order.status === "cancelled" || !order.guestIdCard) {
+      return false;
+    }
+    return String(order.guestIdCard).toUpperCase() === idCard
+      && dateRangesOverlap(payload.checkInDate, payload.checkOutDate, order.checkInDate, order.checkOutDate);
+  }) || null;
 }
 
 function createLocalOrder(payload, room) {
@@ -182,10 +254,28 @@ function createLocalOrder(payload, room) {
     id: orderId,
     wxOpenid: payload.wxOpenid,
     userPhone: payload.userPhone || payload.guestPhone,
+    guestPhone: payload.guestPhone || payload.userPhone || "",
+    guestIdCard: payload.guestIdCard || "",
+    roomTypeId: room.id,
     guest: payload.guestName,
-    roomName: room.name,
+    roomName: payload.roomTypeName || room.name,
     amount: payload.totalAmount,
+    totalAmount: payload.totalAmount,
+    originalAmount: payload.originalAmount || payload.totalAmount,
+    discountAmount: payload.discountAmount || 0,
+    couponId: payload.couponId || "",
+    couponTitle: payload.couponTitle || "",
+    paymentStatus: payload.paymentStatus || "paid",
+    paymentStatusText: payload.paymentStatus === "pending" ? "待支付" : "已支付",
+    paidAt: payload.paymentStatus === "pending" ? "" : now.toISOString(),
+    refundStatus: "",
+    refundStatusText: "",
+    refundAmount: 0,
     date: `${payload.checkInDate} 至 ${payload.checkOutDate}`,
+    checkInDate: payload.checkInDate,
+    checkOutDate: payload.checkOutDate,
+    stayNights: payload.stayNights,
+    createdAt: now.toISOString(),
     status: "upcoming",
     statusText: "待入住"
   };
@@ -202,6 +292,7 @@ module.exports = {
   profileData,
   getRoomById,
   getMergedOrders,
+  findIdCardBookingConflict,
   createLocalOrder,
   upsertLocalOrder,
   removeLocalOrder

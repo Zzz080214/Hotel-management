@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>悦栖酒店管理系统请求负载测试报告</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 34px;
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+      color: #1e293b;
+      background: #f5f7fb;
+    }
+    .report {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #dbe3ef;
+      border-radius: 8px;
+      box-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .header {
+      padding: 30px 34px 26px;
+      background: linear-gradient(135deg, #0f172a 0%, #1f4f5f 52%, #c58b43 100%);
+      color: white;
+    }
+    h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: 0; }
+    .meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; color: rgba(255,255,255,.88); font-size: 14px; }
+    .content { padding: 28px 34px 34px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .kpi {
+      padding: 18px;
+      border: 1px solid #e3e9f3;
+      border-radius: 8px;
+      background: #fbfdff;
+    }
+    .kpi span { display: block; color: #64748b; font-size: 13px; margin-bottom: 7px; }
+    .kpi strong { font-size: 25px; color: #0f172a; }
+    .status-ok { color: #047857; }
+    .status-bad { color: #b91c1c; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #dce4ef;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #e6edf5;
+      text-align: left;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    th { background: #eef4fb; color: #334155; font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    .note {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-left: 4px solid #c58b43;
+      background: #fff8ed;
+      color: #5f3f18;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <main class="report">
+    <section class="header">
+      <h1>悦栖酒店管理系统请求负载测试报告</h1>
+      <div class="meta">
+        <div>测试地址：http://127.0.0.1:8080/api</div>
+        <div>开始时间：2026/5/8 10:17:58</div>
+        <div>并发用户：40</div>
+        <div>持续时间：30.0 秒</div>
+      </div>
+    </section>
+    <section class="content">
+      <div class="kpis">
+        <div class="kpi"><span>总请求数</span><strong>53607</strong></div>
+        <div class="kpi"><span>吞吐量</span><strong>1784.10 req/s</strong></div>
+        <div class="kpi"><span>成功率</span><strong class="status-ok">100.00%</strong></div>
+        <div class="kpi"><span>P95 响应时间</span><strong>40.71 ms</strong></div>
+        <div class="kpi"><span>平均响应时间</span><strong>22.35 ms</strong></div>
+        <div class="kpi"><span>P99 响应时间</span><strong>54.23 ms</strong></div>
+        <div class="kpi"><span>最大响应时间</span><strong>193.27 ms</strong></div>
+        <div class="kpi"><span>失败请求数</span><strong class="status-ok">0</strong></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>接口场景</th>
+            <th>请求数</th>
+            <th>失败数</th>
+            <th>成功率</th>
+            <th>平均耗时</th>
+            <th>P95</th>
+            <th>P99</th>
+            <th>最大耗时</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <td>小程序房型列表</td>
+        <td>12559</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>21.79 ms</td>
+        <td>39.45 ms</td>
+        <td>52.71 ms</td>
+        <td>105.57 ms</td>
+      </tr>
+      <tr>
+        <td>后台经营看板</td>
+        <td>9555</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>27.40 ms</td>
+        <td>47.22 ms</td>
+        <td>61.40 ms</td>
+        <td>193.27 ms</td>
+      </tr>
+      <tr>
+        <td>小程序推荐房型</td>
+        <td>9464</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>21.86 ms</td>
+        <td>39.46 ms</td>
+        <td>52.19 ms</td>
+        <td>116.57 ms</td>
+      </tr>
+      <tr>
+        <td>后台订单列表</td>
+        <td>9391</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>21.23 ms</td>
+        <td>39.03 ms</td>
+        <td>53.06 ms</td>
+        <td>125.01 ms</td>
+      </tr>
+      <tr>
+        <td>小程序公告列表</td>
+        <td>6290</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>20.60 ms</td>
+        <td>37.31 ms</td>
+        <td>50.24 ms</td>
+        <td>145.91 ms</td>
+      </tr>
+      <tr>
+        <td>后台登录</td>
+        <td>3210</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>20.23 ms</td>
+        <td>36.87 ms</td>
+        <td>49.56 ms</td>
+        <td>179.00 ms</td>
+      </tr>
+      <tr>
+        <td>微信演示登录</td>
+        <td>3138</td>
+        <td>0</td>
+        <td>100.00%</td>
+        <td>19.63 ms</td>
+        <td>36.30 ms</td>
+        <td>48.47 ms</td>
+        <td>86.09 ms</td>
+      </tr></tbody>
+      </table>
+
+      <div class="note">
+        本次压测覆盖小程序房型/公告、微信演示登录、后台登录、后台经营看板、后台订单列表等核心请求链路；只读接口为主，避免批量消耗客房库存。
+      </div>
+    </section>
+  </main>
+</body>
+</html>

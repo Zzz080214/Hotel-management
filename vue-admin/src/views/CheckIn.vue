@@ -20,6 +20,10 @@
             <input type="text" v-model="form.guestPhone" placeholder="请输入手机号" />
           </div>
           <div class="field">
+            <label>身份证号</label>
+            <input type="text" v-model="form.guestIdCard" maxlength="18" placeholder="请输入18位身份证号" />
+          </div>
+          <div class="field">
             <label>选择房型</label>
             <select v-model="form.roomType" @change="onRoomTypeChange">
               <option v-for="room in enabledRooms" :key="room.id" :value="room.name">
@@ -212,6 +216,7 @@ const availableRoomNumbers = computed(() => {
 const form = ref({
   guestName: '',
   guestPhone: '',
+  guestIdCard: '',
   roomType: '',
   roomNo: '',
   checkInDate: '',
@@ -231,6 +236,7 @@ function initForm() {
   form.value.checkOutDate = fmt(tomorrow)
   form.value.guestName = ''
   form.value.guestPhone = ''
+  form.value.guestIdCard = ''
   form.value.remark = ''
 }
 
@@ -305,8 +311,9 @@ const needCleaning = computed(() => Math.max(1, Math.round(occupiedCount.value *
 
 // ─── 提交入住 ────────────────────────────────────────
 async function submitCheckin() {
-  if (!form.value.guestName || !/^1\d{10}$/.test(form.value.guestPhone)) {
-    showToast('请填写住客姓名和 11 位手机号')
+  const guestIdCard = String(form.value.guestIdCard || '').replace(/\s/g, '').toUpperCase()
+  if (!form.value.guestName || !/^1\d{10}$/.test(form.value.guestPhone) || !/^\d{17}[\dX]$/.test(guestIdCard)) {
+    showToast('请填写住客姓名、11 位手机号和 18 位身份证号')
     return
   }
   if (!form.value.roomNo) {
@@ -330,6 +337,7 @@ async function submitCheckin() {
       roomTypeName: room.name,
       guestName: form.value.guestName,
       guestPhone: form.value.guestPhone,
+      guestIdCard,
       stayNights: nights,
       totalAmount: Number(room.price || 0) * nights,
       checkInDate: form.value.checkInDate,
@@ -341,6 +349,7 @@ async function submitCheckin() {
 
     form.value.guestName = ''
     form.value.guestPhone = ''
+    form.value.guestIdCard = ''
     form.value.remark = ''
 
     const [dashboard, rooms, orders] = await Promise.all([

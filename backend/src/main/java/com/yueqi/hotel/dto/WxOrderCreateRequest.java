@@ -3,7 +3,6 @@ package com.yueqi.hotel.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,8 +13,14 @@ public record WxOrderCreateRequest(
         String roomTypeName,
         @NotBlank String guestName,
         @NotBlank @Pattern(regexp = "^1\\d{10}$", message = "手机号格式不正确") String guestPhone,
+        @NotBlank @Pattern(regexp = "^\\d{17}[\\dXx]$", message = "身份证号格式不正确") String guestIdCard,
         @NotNull @Min(1) Integer stayNights,
-        @NotNull @DecimalMin("0.01") BigDecimal totalAmount,
+        BigDecimal totalAmount,
+        BigDecimal originalAmount,
+        BigDecimal discountAmount,
+        String couponId,
+        String couponTitle,
+        String paymentStatus,
         @NotNull LocalDate checkInDate,
         @NotNull LocalDate checkOutDate) {
 }

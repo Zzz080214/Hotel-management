@@ -70,6 +70,7 @@
             <th>用户</th>
             <th>房型</th>
             <th>金额</th>
+            <th>支付</th>
             <th>入住日期</th>
             <th>状态</th>
             <th>操作</th>
@@ -81,6 +82,11 @@
             <td>{{ order.guestName || '住客' }}</td>
             <td>{{ order.roomTypeName || '-' }}</td>
             <td>{{ money(order.totalAmount) }}</td>
+            <td>
+              <span :class="paymentStatusMeta(order).className">
+                {{ paymentStatusMeta(order).text }}
+              </span>
+            </td>
             <td>{{ order.checkInDate || '-' }} 至 {{ order.checkOutDate || '-' }}</td>
             <td>
               <span :class="orderStatusMeta[order.status]?.className || 'status pending'">
@@ -89,17 +95,16 @@
             </td>
             <td>
               <button
-                v-if="isAdmin() && (order.status === 'upcoming' || order.status === 'staying')"
+                v-if="isAdmin() && order.status === 'upcoming'"
                 class="button"
                 style="min-height: 34px; padding: 0 14px; font-size: 13px;"
                 @click="handleCancel(order.id)"
               >取消</button>
-              <span v-else-if="!isAdmin() && (order.status === 'upcoming' || order.status === 'staying')" class="subtle">--</span>
               <span v-else class="subtle">--</span>
             </td>
           </tr>
           <tr v-if="filteredOrders.length === 0">
-            <td colspan="7" style="text-align: center; color: var(--muted); padding: 40px 0;">
+            <td colspan="8" style="text-align: center; color: var(--muted); padding: 40px 0;">
               暂无匹配的订单数据
             </td>
           </tr>
@@ -183,7 +188,7 @@ const filteredOrders = computed(() => {
   const st = statusFilter.value
   return orders.value.filter(order => {
     const statusMatch = st === 'all' || order.status === st
-    const searchText = `${order.id} ${order.guestName} ${order.roomTypeName} ${order.guestPhone}`.toLowerCase()
+    const searchText = `${order.id} ${order.guestName} ${order.roomTypeName} ${order.guestPhone} ${order.guestIdCard}`.toLowerCase()
     const keywordMatch = !kw || searchText.includes(kw)
     return statusMatch && keywordMatch
   })
@@ -193,6 +198,16 @@ function reset() {
   keyword.value = ''
   statusFilter.value = 'all'
   showToast('订单筛选已重置')
+}
+
+function paymentStatusMeta(order) {
+  if (order.refundStatus === 'refunded' || order.paymentStatus === 'refunded') {
+    return { text: '已退款', className: 'status cancelled' }
+  }
+  if (order.paymentStatus === 'pending') {
+    return { text: '待支付', className: 'status pending' }
+  }
+  return { text: '已支付', className: 'status active' }
 }
 
 async function handleCancel(orderId) {

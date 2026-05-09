@@ -2,10 +2,10 @@ package com.yueqi.hotel.service;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,8 +23,12 @@ public class WxAuthService {
 
     public record WxSession(String openid, String token, String nickname, String avatarUrl) {}
 
-    private final Map<String, WxSession> tokenStore = new ConcurrentHashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
+    private final TokenService tokenService;
+
+    public WxAuthService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
 
     @Value("${wx.mini-program.appid:}")
     private String appId;
@@ -35,24 +39,32 @@ public class WxAuthService {
     @Value("${wx.mini-program.dev-login-enabled:true}")
     private boolean devLoginEnabled;
 
+    @Value("${auth.token.wx-ttl-minutes:43200}")
+    private long wxTokenTtlMinutes;
+
     public WxLoginResponse login(WxLoginRequest request) {
         String openid = exchangeOpenid(request);
-        String token = UUID.randomUUID().toString().replace("-", "");
-        WxSession session = new WxSession(
+        String nickname = StringUtils.hasText(request.nickname()) ? request.nickname().trim() : "微信用户";
+        String avatarUrl = request.avatarUrl() == null ? "" : request.avatarUrl();
+        String token = tokenService.issue(
+                "wx",
                 openid,
-                token,
-                StringUtils.hasText(request.nickname()) ? request.nickname().trim() : "微信用户",
-                request.avatarUrl());
-        tokenStore.put(token, session);
-        return new WxLoginResponse(token, openid, session.nickname(), session.avatarUrl());
+                Duration.ofMinutes(wxTokenTtlMinutes),
+                Map.of("nickname", nickname, "avatarUrl", avatarUrl));
+        return new WxLoginResponse(token, openid, nickname, avatarUrl);
     }
 
     public Optional<WxSession> validateToken(String token) {
-        return Optional.ofNullable(tokenStore.get(token));
+        return tokenService.verify(token, "wx")
+                .map(payload -> new WxSession(
+                        payload.subject(),
+                        token,
+                        payload.claims().getOrDefault("nickname", "微信用户"),
+                        payload.claims().getOrDefault("avatarUrl", "")));
     }
 
     public void logout(String token) {
-        tokenStore.remove(token);
+        tokenService.revoke(token);
     }
 
     private String exchangeOpenid(WxLoginRequest request) {

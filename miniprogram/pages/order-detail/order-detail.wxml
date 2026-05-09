@@ -1,0 +1,54 @@
+<view class="container" wx:if="{{!loading && order}}">
+  <view class="card hero-card">
+    <image wx:if="{{roomImage}}" class="hero-image" src="{{roomImage}}" mode="aspectFill"></image>
+    <view class="hero-body">
+      <view class="hero-top">
+        <view>
+          <view class="hero-title">{{order.roomName}}</view>
+          <view class="hero-subtitle">订单号 {{order.id}}</view>
+        </view>
+        <view class="pill {{order.status === 'cancelled' ? 'pill-danger' : order.status === 'finished' ? 'pill-success' : order.status === 'staying' ? 'pill-brand' : 'pill-warning'}}">{{order.statusText}}</view>
+      </view>
+      <view class="hero-meta">入住人：{{order.guest}}</view>
+      <view class="hero-meta" wx:if="{{order.date}}">入住时间：{{order.date}}</view>
+      <view class="hero-meta">订单金额：<text class="price">¥{{order.amount}}</text></view>
+      <view class="source-line">当前数据来源：{{dataSourceText}}</view>
+    </view>
+  </view>
+
+  <view class="card detail-card">
+    <view class="section-title">订单信息</view>
+    <view class="detail-list">
+      <view class="detail-row" wx:for="{{detailRows}}" wx:key="label">
+        <text class="muted">{{item.label}}</text>
+        <text>{{item.value}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card detail-card" wx:if="{{room}}">
+    <view class="section-title">房型信息</view>
+    <view class="room-meta">{{room.area}} · {{room.bed}} · {{room.breakfast}}</view>
+    <view class="room-summary">{{room.summary}}</view>
+    <view class="feature-row">
+      <view class="feature-pill" wx:for="{{roomFeatures}}" wx:key="*this">{{item}}</view>
+    </view>
+  </view>
+
+  <view class="action-row">
+    <view class="ghost-btn cancel-btn" wx:if="{{order.status === 'upcoming'}}" bindtap="handleCancel">{{order.paymentStatus === 'paid' ? '退款取消' : '取消订单'}}</view>
+    <view class="ghost-btn cancel-btn" wx:if="{{order.status === 'upcoming' && order.paymentStatus === 'pending'}}" bindtap="handlePay">去支付</view>
+    <view class="primary-btn" bindtap="handleBackToOrders">返回订单</view>
+  </view>
+</view>
+
+<view class="container" wx:if="{{loading}}">
+  <view class="card empty-card">正在加载订单详情...</view>
+</view>
+
+<view class="container" wx:if="{{!loading && errorText}}">
+  <view class="card empty-card">
+    <view>{{errorText}}</view>
+    <view class="primary-btn retry-btn" bindtap="loadDetail">重新加载</view>
+  </view>
+</view>

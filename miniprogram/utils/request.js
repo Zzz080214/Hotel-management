@@ -85,6 +85,13 @@ function request(options) {
           return;
         }
 
+        try {
+          unwrapResponse(res.data);
+        } catch (error) {
+          reject(error);
+          return;
+        }
+
         reject(new Error(`HTTP ${res.statusCode}`));
       },
       fail(error) {

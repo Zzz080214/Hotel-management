@@ -54,6 +54,19 @@ function normalizeNotice(item = {}, index = 0) {
   };
 }
 
+function decodeDisplayText(value) {
+  const text = value === undefined || value === null ? "" : String(value);
+  if (!/%[0-9A-Fa-f]{2}/.test(text)) {
+    return text;
+  }
+
+  try {
+    return decodeURIComponent(text);
+  } catch (error) {
+    return text;
+  }
+}
+
 function normalizeOrder(item = {}) {
   const rawStatus = item.status || item.orderStatus || item.state || "upcoming";
   const statusMap = {
@@ -74,19 +87,69 @@ function normalizeOrder(item = {}) {
     cancelled: "已取消"
   };
   const normalizedStatus = statusMap[String(rawStatus).toUpperCase()] || rawStatus;
-  const checkInDate = item.checkInDate || item.startDate || item.inDate || "";
-  const checkOutDate = item.checkOutDate || item.endDate || item.outDate || "";
-  const dateText = checkInDate && checkOutDate ? `${checkInDate} 至 ${checkOutDate}` : (item.date || item.orderDate || "");
+  const rawPaymentStatus = item.paymentStatus || item.payStatus || item.paymentState || "paid";
+  const paymentStatusMap = {
+    PAID: "paid",
+    PENDING: "pending",
+    UNPAID: "pending",
+    REFUNDED: "refunded",
+    REFUNDING: "refunding"
+  };
+  const paymentTextMap = {
+    paid: "已支付",
+    pending: "待支付",
+    refunded: "已退款",
+    refunding: "退款中"
+  };
+  const normalizedPaymentStatus = paymentStatusMap[String(rawPaymentStatus).toUpperCase()] || rawPaymentStatus;
+  const rawRefundStatus = item.refundStatus || item.refundState || "";
+  const refundStatusMap = {
+    NONE: "",
+    PENDING: "pending",
+    REFUNDED: "refunded"
+  };
+  const refundTextMap = {
+    pending: "退款中",
+    refunded: "已退款"
+  };
+  const normalizedRefundStatus = refundStatusMap[String(rawRefundStatus).toUpperCase()] || rawRefundStatus;
+  const checkInDate = decodeDisplayText(item.checkInDate || item.startDate || item.inDate || "");
+  const checkOutDate = decodeDisplayText(item.checkOutDate || item.endDate || item.outDate || "");
+  const dateText = checkInDate && checkOutDate
+    ? `${checkInDate} 至 ${checkOutDate}`
+    : decodeDisplayText(item.date || item.orderDate || "");
 
   return {
     id: item.id || item.orderId || item.orderNo || "未知订单",
-    guest: item.guest || item.guestName || item.userName || "住客",
-    roomName: item.roomName || item.roomTypeName || item.typeName || "房型待定",
+    wxOpenid: item.wxOpenid || "",
+    guest: decodeDisplayText(item.guest || item.guestName || item.userName || "住客"),
+    guestPhone: decodeDisplayText(item.guestPhone || item.phone || ""),
+    guestIdCard: decodeDisplayText(item.guestIdCard || item.idCard || item.idNumber || ""),
+    userPhone: decodeDisplayText(item.userPhone || item.memberPhone || ""),
+    roomName: decodeDisplayText(item.roomName || item.roomTypeName || item.typeName || "房型待定"),
+    roomTypeId: item.roomTypeId || item.typeId || "",
     amount: Number(item.amount || item.totalAmount || item.payAmount || 0),
+    originalAmount: Number(item.originalAmount || item.originAmount || item.beforeDiscountAmount || item.amount || item.totalAmount || 0),
+    discountAmount: Number(item.discountAmount || item.couponDiscount || item.discount || 0),
+    couponId: item.couponId || "",
+    couponTitle: decodeDisplayText(item.couponTitle || item.couponName || ""),
+    paymentStatus: normalizedPaymentStatus,
+    paymentStatusText: decodeDisplayText(item.paymentStatusText || item.payStatusText || paymentTextMap[normalizedPaymentStatus] || "已支付"),
+    paidAt: decodeDisplayText(item.paidAt || item.paymentTime || ""),
+    refundStatus: normalizedRefundStatus,
+    refundStatusText: decodeDisplayText(item.refundStatusText || refundTextMap[normalizedRefundStatus] || ""),
+    refundAmount: Number(item.refundAmount || 0),
     date: dateText,
+    stayNights: Number(item.stayNights || item.nights || 0),
+    checkInDate: decodeDisplayText(item.checkInDate || item.startDate || item.inDate || ""),
+    checkOutDate: decodeDisplayText(item.checkOutDate || item.endDate || item.outDate || ""),
     roomNo: item.roomNo || "",
     status: normalizedStatus,
-    statusText: item.statusText || item.orderStatusText || textMap[normalizedStatus] || "处理中"
+    statusText: decodeDisplayText(item.statusText || item.orderStatusText || textMap[normalizedStatus] || "处理中"),
+    createdAt: decodeDisplayText(item.createdAt || item.createTime || item.orderTime || ""),
+    checkInAt: decodeDisplayText(item.checkInAt || item.arriveAt || ""),
+    checkOutAt: decodeDisplayText(item.checkOutAt || item.departAt || ""),
+    checkOutSource: decodeDisplayText(item.checkOutSource || "")
   };
 }
 
@@ -142,6 +205,15 @@ function loginWithWechat(data) {
   });
 }
 
+function loginWithDemoDevice(devOpenid) {
+  return loginWithWechat({
+    code: `demo-${Date.now()}`,
+    nickname: "微信用户",
+    avatarUrl: "",
+    devOpenid
+  });
+}
+
 function logoutWechat() {
   return request({
     url: "/wx/auth/logout",
@@ -154,6 +226,13 @@ function getMyOrders(status) {
   return request({
     url: "/wx/orders/my",
     data: status && status !== "all" ? { status } : undefined,
+    auth: true
+  });
+}
+
+function getOrderDetail(id) {
+  return request({
+    url: `/wx/orders/${encodeURIComponent(id)}`,
     auth: true
   });
 }
@@ -175,9 +254,25 @@ function faceCheckInOrder(id) {
   });
 }
 
+function payOrder(id) {
+  return request({
+    url: `/wx/orders/${encodeURIComponent(id)}/pay`,
+    method: "POST",
+    auth: true
+  });
+}
+
 function selfCheckOutOrder(id) {
   return request({
     url: `/wx/orders/${encodeURIComponent(id)}/self-check-out`,
+    method: "POST",
+    auth: true
+  });
+}
+
+function cancelOrder(id) {
+  return request({
+    url: `/wx/orders/${encodeURIComponent(id)}/cancel`,
     method: "POST",
     auth: true
   });
@@ -200,10 +295,14 @@ module.exports = {
   getRoomDetail,
   getNoticeList,
   loginWithWechat,
+  loginWithDemoDevice,
   logoutWechat,
   getMyOrders,
+  getOrderDetail,
   createOrder,
   faceCheckInOrder,
+  payOrder,
   selfCheckOutOrder,
+  cancelOrder,
   getProfile
 };

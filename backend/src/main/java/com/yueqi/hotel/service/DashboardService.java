@@ -26,7 +26,7 @@ public class DashboardService {
         this.noticeService = noticeService;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Map<String, Object> overview() {
         List<RoomType> rooms = roomTypeService.listEnabled();
         int totalRooms = rooms.stream().mapToInt(room -> value(room.getTotalRooms())).sum();
@@ -49,7 +49,7 @@ public class DashboardService {
         return data;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public String operationsReportCsv() {
         List<RoomType> rooms = roomTypeService.listEnabled();
         List<HotelOrder> orders = orderService.adminList(null, null);

@@ -1,6 +1,6 @@
 <view class="face-page">
   <view class="camera-card">
-    <camera class="camera-view" device-position="front" flash="off"></camera>
+    <camera class="camera-view" device-position="front" flash="off" bindinitdone="onCameraReady" binderror="onCameraError"></camera>
     <view class="camera-shade"></view>
     <view class="face-frame {{faceDetected ? 'face-frame-active' : ''}}">
       <view class="scan-line" wx:if="{{status === 'scanning' || status === 'comparing'}}"></view>
@@ -21,14 +21,10 @@
       <view class="status-dot {{status}}"></view>
       <text>{{statusText}}</text>
     </view>
-    <view class="progress-track">
-      <view class="progress-fill" style="width: {{progress}}%;"></view>
-    </view>
-    <view class="progress-text">{{progress}}%</view>
 
     <view class="loading-row" wx:if="{{comparing}}">
       <view class="loading-ring"></view>
-      <text>正在比对身份信息，请稍候</text>
+      <text>{{status === 'success' ? '认证结果已通过' : '正在认证，请稍候'}}</text>
     </view>
 
     <view class="success-box" wx:if="{{status === 'success'}}">

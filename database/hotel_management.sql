@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS room_type_features;
 DROP TABLE IF EXISTS hotel_order;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS user_profile;
+DROP TABLE IF EXISTS sys_user;
 DROP TABLE IF EXISTS room_type;
 
 CREATE TABLE room_type (
@@ -42,12 +43,25 @@ CREATE TABLE room_type_features (
 
 CREATE TABLE hotel_order (
   id VARCHAR(40) NOT NULL COMMENT '订单号',
+  wx_openid VARCHAR(80) DEFAULT NULL COMMENT '微信 openid',
+  user_phone VARCHAR(20) DEFAULT NULL COMMENT '下单用户手机号',
   room_type_id BIGINT DEFAULT NULL COMMENT '房型ID',
   room_type_name VARCHAR(80) NOT NULL COMMENT '房型名称',
   guest_name VARCHAR(60) NOT NULL COMMENT '住客姓名',
   guest_phone VARCHAR(20) NOT NULL COMMENT '住客手机号',
+  guest_id_card VARCHAR(18) NOT NULL COMMENT '住客身份证号',
   stay_nights INT NOT NULL DEFAULT 1 COMMENT '入住晚数',
-  total_amount DECIMAL(10,2) NOT NULL COMMENT '订单金额',
+  total_amount DECIMAL(10,2) NOT NULL COMMENT '实付金额',
+  original_amount DECIMAL(10,2) DEFAULT NULL COMMENT '优惠前金额',
+  discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT '优惠抵扣金额',
+  coupon_id VARCHAR(60) DEFAULT NULL COMMENT '使用优惠券ID',
+  coupon_title VARCHAR(80) DEFAULT NULL COMMENT '使用优惠券名称',
+  payment_status VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT '支付状态：pending/paid/refunded',
+  paid_at DATETIME DEFAULT NULL COMMENT '支付时间',
+  payment_trade_no VARCHAR(80) DEFAULT NULL COMMENT '支付流水号',
+  refund_status VARCHAR(20) DEFAULT NULL COMMENT '退款状态',
+  refund_amount DECIMAL(10,2) DEFAULT NULL COMMENT '退款金额',
+  refunded_at DATETIME DEFAULT NULL COMMENT '退款时间',
   check_in_date DATE NOT NULL COMMENT '入住日期',
   check_out_date DATE NOT NULL COMMENT '退房日期',
   status VARCHAR(40) NOT NULL COMMENT '订单状态：upcoming/staying/finished/cancelled',
@@ -55,8 +69,12 @@ CREATE TABLE hotel_order (
   created_at DATETIME DEFAULT NULL COMMENT '创建时间',
   check_in_at DATETIME DEFAULT NULL COMMENT '办理入住时间',
   check_out_at DATETIME DEFAULT NULL COMMENT '办理退房时间',
+  check_out_source VARCHAR(20) DEFAULT NULL COMMENT '退房来源：FRONT_DESK/AUTO_CHECKOUT',
   PRIMARY KEY (id),
+  KEY idx_hotel_order_wx_openid (wx_openid),
+  KEY idx_hotel_order_user_phone (user_phone),
   KEY idx_hotel_order_room_type_id (room_type_id),
+  KEY idx_hotel_order_guest_id_card (guest_id_card),
   KEY idx_hotel_order_status (status),
   KEY idx_hotel_order_created_at (created_at),
   CONSTRAINT fk_hotel_order_room_type
@@ -84,10 +102,21 @@ CREATE TABLE user_profile (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='小程序用户资料表';
 
+CREATE TABLE sys_user (
+  id BIGINT NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  username VARCHAR(50) NOT NULL COMMENT '登录账号',
+  password VARCHAR(200) NOT NULL COMMENT 'BCrypt 密码哈希',
+  role VARCHAR(20) NOT NULL COMMENT '角色：ADMIN/MANAGER/STAFF',
+  display_name VARCHAR(50) DEFAULT NULL COMMENT '显示名称',
+  enabled TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否启用',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_sys_user_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='后台系统用户表';
+
 INSERT INTO room_type
   (id, name, price, area, bed, breakfast, occupancy, status, tag, image, summary, total_rooms, available_rooms, enabled)
 VALUES
-  (1, '豪华大床房', 428.00, '32m²', '1张 1.8m×2.0m', '双早', '2人', 'hot', '热门',
+  (1, '豪华大床房', 426.00, '32m²', '1张 1.8m×2.0m', '双早', '2人', 'hot', '热门',
    'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
    '高楼层景观房，适合情侣与商务单人入住。', 20, 8, 1),
   (2, '标准双床房', 396.00, '35m²', '2张 1.35m×2.0m', '双早', '2人', 'steady', '稳定',
@@ -111,17 +140,26 @@ INSERT INTO notice (id, title, level, content, published, publish_date) VALUES
   (2, '连住优惠活动上线', '活动', '连续入住两晚及以上可享95折，部分房型赠双早。', 1, CURDATE());
 
 INSERT INTO hotel_order
-  (id, room_type_id, room_type_name, guest_name, guest_phone, stay_nights, total_amount,
-   check_in_date, check_out_date, status, room_no, created_at, check_in_at, check_out_at)
+  (id, wx_openid, user_phone, room_type_id, room_type_name, guest_name, guest_phone, guest_id_card, stay_nights, total_amount,
+   original_amount, discount_amount, coupon_id, coupon_title, payment_status, paid_at, payment_trade_no,
+   check_in_date, check_out_date, status, room_no, created_at, check_in_at, check_out_at, check_out_source)
 VALUES
-  ('HT20260430001', 1, '豪华大床房', '张同学', '13800138000', 2, 856.00,
-   CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'upcoming', NULL, NOW(), NULL, NULL),
-  ('HT20260430022', 1, '豪华大床房', '赵女士', '13800138001', 3, 1284.00,
-   CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'staying', '0806', NOW(), NOW(), NULL),
-  ('HT20260429031', 4, '亲子家庭房', '陈女士', '13800138002', 1, 168.00,
-   DATE_SUB(CURDATE(), INTERVAL 1 DAY), CURDATE(), 'finished', '0312', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), NOW());
+  ('HT20260430001', 'dev-local-device', '13800138000', 1, '豪华大床房', '张同学', '13800138000', '440101199901011234', 2, 809.40,
+   852.00, 42.60, 'coupon-stay', '连住优惠券', 'paid', NOW(),
+   'DEMO-PAY-20260430001', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 2 DAY), 'upcoming', NULL, NOW(), NULL, NULL, NULL),
+  ('HT20260430022', 'dev-local-device', '13800138001', 1, '豪华大床房', '赵女士', '13800138001', '440101199202022345', 3, 1214.10,
+   1278.00, 63.90, 'coupon-stay', '连住优惠券', 'paid', NOW(),
+   'DEMO-PAY-20260430022', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 3 DAY), 'staying', '0806', NOW(), NOW(), NULL, NULL),
+  ('HT20260429031', 'dev-local-device', '13800138002', 4, '亲子家庭房', '陈女士', '13800138002', '440101198803033456', 1, 168.00,
+   168.00, 0.00, NULL, NULL, 'paid', DATE_SUB(NOW(), INTERVAL 1 DAY),
+   'DEMO-PAY-20260429031', DATE_SUB(CURDATE(), INTERVAL 1 DAY), CURDATE(), 'finished', '0312', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY), NOW(), 'FRONT_DESK');
 
 INSERT INTO user_profile (id, nickname, description, coupon_count, match_rate) VALUES
   (1, '酒店住客', '欢迎再次入住悦栖酒店', 2, '93%');
+
+INSERT INTO sys_user (id, username, password, role, display_name, enabled) VALUES
+  (1, 'admin', '$2a$10$o9V.xrwapAiiLd.y.kamXeABqJ1xDJCSb7Y1wFygDUnkuv.menoDG', 'ADMIN', '系统管理员', 1),
+  (2, 'manager', '$2a$10$ABLWXbj6.NWpCSpOC3Lqzed/xumDav1WAGOtLcaqufYEyHTQ/vUUq', 'MANAGER', '赵经理', 1),
+  (3, 'staff', '$2a$10$EpmqQ/y3uuKkRs43kzaVNOBrsS6lWwst7s0aU4H6tWmjmHEPUrWfu', 'STAFF', '赵前台', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -60,10 +60,24 @@ public class WxOrderController {
         return ApiResponse.success(orderService.selfCheckInForWx(id, session.openid()));
     }
 
+    @PostMapping("/{id}/pay")
+    public ApiResponse<HotelOrder> pay(@PathVariable String id,
+                                       HttpServletRequest request) {
+        WxSession session = WxRequestAuth.requireSession(request, wxAuthService);
+        return ApiResponse.success(orderService.payForWx(id, session.openid()));
+    }
+
     @PostMapping("/{id}/self-check-out")
     public ApiResponse<HotelOrder> selfCheckOut(@PathVariable String id,
                                                 HttpServletRequest request) {
         WxSession session = WxRequestAuth.requireSession(request, wxAuthService);
         return ApiResponse.success(orderService.selfCheckOutForWx(id, session.openid()));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ApiResponse<HotelOrder> cancel(@PathVariable String id,
+                                          HttpServletRequest request) {
+        WxSession session = WxRequestAuth.requireSession(request, wxAuthService);
+        return ApiResponse.success(orderService.cancelForWx(id, session.openid()));
     }
 }

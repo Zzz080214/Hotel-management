@@ -30,7 +30,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { adminState, showToast, handleLogout, isAdmin } from '../stores/admin.js'
+import {
+  adminState, showToast, handleLogout, isBackOfficeRole,
+  roleDefaultName, roleHome, roleLabel
+} from '../stores/admin.js'
 import {
   fetchDashboard, fetchRoomTypes, fetchOrders, fetchNotices
 } from '../api/index.js'
@@ -41,8 +44,8 @@ const searchKeyword = ref('')
 const clock = ref('')
 let clockTimer = null
 
-const displayName = computed(() => adminState.currentUser?.displayName || (isAdmin() ? '赵经理' : '赵前台'))
-const roleText = computed(() => isAdmin() ? '管理员' : '前台员工')
+const displayName = computed(() => adminState.currentUser?.displayName || roleDefaultName())
+const roleText = computed(() => roleLabel())
 
 function updateClock() {
   const now = new Date()
@@ -52,16 +55,16 @@ function updateClock() {
 function doSearch() {
   const keyword = searchKeyword.value.trim()
   if (!keyword) {
-    router.push(isAdmin() ? '/dashboard' : '/staff/room-board')
+    router.push(roleHome())
     return
   }
-  // 管理员跳订单管理，员工跳退房搜索
-  if (isAdmin()) {
+  // 管理员/经理跳订单管理，员工跳退房搜索
+  if (isBackOfficeRole()) {
     router.push('/orders')
   } else {
     router.push('/staff/checkout')
   }
-  showToast(isAdmin() ? '已跳转到订单管理' : '已跳转到退房结算页搜索')
+  showToast(isBackOfficeRole() ? '已跳转到订单管理' : '已跳转到退房结算页搜索')
 }
 
 const loadAdminData = async (showMessage = false) => {

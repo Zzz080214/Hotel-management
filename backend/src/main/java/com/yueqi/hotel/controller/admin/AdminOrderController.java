@@ -50,6 +50,11 @@ public class AdminOrderController {
         return ApiResponse.success(orderService.checkIn(id, request));
     }
 
+    @PostMapping("/{id}/confirm-payment")
+    public ApiResponse<HotelOrder> confirmPayment(@PathVariable String id) {
+        return ApiResponse.success(orderService.confirmPaymentFromAdmin(id));
+    }
+
     @PostMapping("/{id}/check-out")
     public ApiResponse<HotelOrder> checkOut(@PathVariable String id) {
         return ApiResponse.success(orderService.checkOut(id));

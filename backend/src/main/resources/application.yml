@@ -28,8 +28,22 @@ logging:
   level:
     org.hibernate.SQL: warn
 
+app:
+  production: ${APP_PRODUCTION:false}
+  cors:
+    allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://127.0.0.1:*,http://localhost:*}
+
+auth:
+  token:
+    secret: ${AUTH_TOKEN_SECRET:local-dev-token-secret-change-before-production}
+    admin-ttl-minutes: ${AUTH_ADMIN_TOKEN_TTL_MINUTES:480}
+    wx-ttl-minutes: ${AUTH_WX_TOKEN_TTL_MINUTES:43200}
+
+payment:
+  callback-secret: ${PAYMENT_CALLBACK_SECRET:local-payment-callback-secret}
+
 wx:
   mini-program:
     appid: wxde034e388926eef6
     secret: ${WX_MINI_PROGRAM_SECRET:}
-    dev-login-enabled: true
+    dev-login-enabled: ${WX_DEV_LOGIN_ENABLED:true}

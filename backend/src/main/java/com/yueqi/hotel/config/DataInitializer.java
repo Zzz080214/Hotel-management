@@ -20,9 +20,12 @@ import com.yueqi.hotel.repository.NoticeRepository;
 import com.yueqi.hotel.repository.RoomTypeRepository;
 import com.yueqi.hotel.repository.UserProfileRepository;
 import com.yueqi.hotel.repository.UserRepository;
+import com.yueqi.hotel.service.PasswordService;
 
 @Configuration
 public class DataInitializer {
+
+    private static final String DELUXE_KING_ROOM_PRICE = "426";
 
     @Bean
     CommandLineRunner seedData(
@@ -30,11 +33,12 @@ public class DataInitializer {
             NoticeRepository noticeRepository,
             HotelOrderRepository orderRepository,
             UserProfileRepository userProfileRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordService passwordService) {
         return args -> {
             if (roomTypeRepository.count() == 0) {
                 roomTypeRepository.saveAll(List.of(
-                        roomType("豪华大床房", "428", "32m²", "1张 1.8m×2.0m", "双早", "2人", "hot", "热门",
+                        roomType("豪华大床房", DELUXE_KING_ROOM_PRICE, "32m²", "1张 1.8m×2.0m", "双早", "2人", "hot", "热门",
                                 "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80",
                                 "高楼层景观房，适合情侣与商务单人入住。", 20, 8,
                                 List.of("景观窗", "智能电视", "独立淋浴", "免费停车")),
@@ -51,6 +55,14 @@ public class DataInitializer {
                                 "一大一小床组合，适合亲子家庭入住。", 16, 9,
                                 List.of("亲子床型", "儿童用品", "宽敞空间", "卫生安心"))));
             }
+            roomTypeRepository.findAll().stream()
+                    .filter(roomType -> "豪华大床房".equals(roomType.getName()))
+                    .forEach(roomType -> {
+                        if (new BigDecimal("428").compareTo(roomType.getPrice()) == 0) {
+                            roomType.setPrice(new BigDecimal(DELUXE_KING_ROOM_PRICE));
+                            roomTypeRepository.save(roomType);
+                        }
+                    });
 
             if (noticeRepository.count() == 0) {
                 noticeRepository.save(notice("五一假期入住温馨提示", "重要", "节假日期间入住高峰较多，建议提前在小程序完成预订与登记。"));
@@ -60,11 +72,17 @@ public class DataInitializer {
             if (orderRepository.count() == 0) {
                 String todayPrefix = "HT" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
                 orderRepository.save(order(todayPrefix + "001", 1L, "豪华大床房", "张同学", "13800138000",
-                        2, "856", LocalDate.now(), LocalDate.now().plusDays(2), "upcoming", null));
+                        "440101199901011234",
+                        2, "809.40", "852.00", "42.60", "coupon-stay", "连住优惠券",
+                        "paid", LocalDate.now(), LocalDate.now().plusDays(2), "upcoming", null));
                 orderRepository.save(order(todayPrefix + "002", 1L, "豪华大床房", "赵女士", "13800138001",
-                        3, "1284", LocalDate.now(), LocalDate.now().plusDays(3), "staying", "8105"));
+                        "440101199202022345",
+                        3, "1214.10", "1278.00", "63.90", "coupon-stay", "连住优惠券",
+                        "paid", LocalDate.now(), LocalDate.now().plusDays(3), "staying", "8105"));
                 orderRepository.save(order(todayPrefix + "003", 4L, "亲子家庭房", "陈女士", "13800138002",
-                        1, "168", LocalDate.now().minusDays(1), LocalDate.now().minusDays(1), "finished", "8601"));
+                        "440101198803033456",
+                        1, "168.00", "168.00", "0.00", null, null,
+                        "paid", LocalDate.now().minusDays(1), LocalDate.now().minusDays(1), "finished", "8601"));
             }
             orderRepository.findAll().forEach(order -> {
                 if (order.getUserPhone() == null || order.getUserPhone().isBlank()) {
@@ -72,6 +90,21 @@ public class DataInitializer {
                 }
                 if (order.getWxOpenid() == null || order.getWxOpenid().isBlank()) {
                     order.setWxOpenid("dev-local-device");
+                }
+                if (order.getGuestIdCard() == null || order.getGuestIdCard().isBlank()) {
+                    order.setGuestIdCard("440101199001010000");
+                }
+                if (order.getOriginalAmount() == null) {
+                    order.setOriginalAmount(order.getTotalAmount());
+                }
+                if (order.getDiscountAmount() == null) {
+                    order.setDiscountAmount(BigDecimal.ZERO);
+                }
+                if (order.getPaymentStatus() == null || order.getPaymentStatus().isBlank()) {
+                    order.setPaymentStatus("paid");
+                }
+                if ("paid".equals(order.getPaymentStatus()) && order.getPaidAt() == null) {
+                    order.setPaidAt(order.getCreatedAt());
                 }
                 orderRepository.save(order);
             });
@@ -86,8 +119,9 @@ public class DataInitializer {
                 userProfileRepository.save(profile);
             }
 
-            upsertUser(userRepository, "admin", "admin123", "ADMIN", "赵经理");
-            upsertUser(userRepository, "staff", "staff123", "STAFF", "赵前台");
+            upsertDefaultUser(userRepository, passwordService, "admin", "admin123", "ADMIN", "系统管理员");
+            upsertDefaultUser(userRepository, passwordService, "manager", "manager123", "MANAGER", "赵经理");
+            upsertDefaultUser(userRepository, passwordService, "staff", "staff123", "STAFF", "赵前台");
         };
     }
 
@@ -139,8 +173,14 @@ public class DataInitializer {
             String roomTypeName,
             String guestName,
             String guestPhone,
+            String guestIdCard,
             Integer stayNights,
             String totalAmount,
+            String originalAmount,
+            String discountAmount,
+            String couponId,
+            String couponTitle,
+            String paymentStatus,
             LocalDate checkInDate,
             LocalDate checkOutDate,
             String status,
@@ -153,8 +193,17 @@ public class DataInitializer {
         order.setUserPhone(guestPhone);
         order.setGuestName(guestName);
         order.setGuestPhone(guestPhone);
+        order.setGuestIdCard(guestIdCard);
         order.setStayNights(stayNights);
         order.setTotalAmount(new BigDecimal(totalAmount));
+        order.setOriginalAmount(new BigDecimal(originalAmount));
+        order.setDiscountAmount(new BigDecimal(discountAmount));
+        order.setCouponId(couponId);
+        order.setCouponTitle(couponTitle);
+        order.setPaymentStatus(paymentStatus);
+        if ("paid".equals(paymentStatus)) {
+            order.setPaidAt(LocalDateTime.now().minusHours(2));
+        }
         order.setCheckInDate(checkInDate);
         order.setCheckOutDate(checkOutDate);
         order.setStatus(status);
@@ -170,13 +219,27 @@ public class DataInitializer {
         return order;
     }
 
-    private void upsertUser(UserRepository userRepository, String username, String password, String role, String displayName) {
-        User user = userRepository.findByUsername(username).orElseGet(User::new);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setRole(role);
-        user.setDisplayName(displayName);
-        user.setEnabled(true);
+    private void upsertDefaultUser(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            String username,
+            String defaultPassword,
+            String role,
+            String displayName) {
+        var existingUser = userRepository.findByUsername(username);
+        boolean isNewUser = existingUser.isEmpty();
+        User user = existingUser.orElseGet(User::new);
+        if (isNewUser) {
+            user.setUsername(username);
+            user.setRole(role);
+            user.setDisplayName(displayName);
+            user.setEnabled(true);
+        }
+        if (user.getPassword() == null
+                || user.getPassword().isBlank()
+                || defaultPassword.equals(user.getPassword())) {
+            user.setPassword(passwordService.hash(defaultPassword));
+        }
         userRepository.save(user);
     }
 }

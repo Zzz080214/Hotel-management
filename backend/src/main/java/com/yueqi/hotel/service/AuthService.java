@@ -1,10 +1,9 @@
 package com.yueqi.hotel.service;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,13 +16,17 @@ import com.yueqi.hotel.repository.UserRepository;
 @Service
 public class AuthService {
 
-    /** token → user 的内存存储（演示环境，生产应换 Redis/JWT） */
-    private final Map<String, User> tokenStore = new ConcurrentHashMap<>();
-
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
+    private final TokenService tokenService;
 
-    public AuthService(UserRepository userRepository) {
+    @Value("${auth.token.admin-ttl-minutes:480}")
+    private long adminTokenTtlMinutes;
+
+    public AuthService(UserRepository userRepository, PasswordService passwordService, TokenService tokenService) {
         this.userRepository = userRepository;
+        this.passwordService = passwordService;
+        this.tokenService = tokenService;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -34,12 +37,20 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "账号已被禁用");
         }
 
-        if (!user.getPassword().equals(request.password())) {
+        if (!passwordService.matches(request.password(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "账号或密码错误");
         }
 
-        String token = UUID.randomUUID().toString().replace("-", "");
-        tokenStore.put(token, user);
+        if (!passwordService.isHash(user.getPassword())) {
+            user.setPassword(passwordService.hash(request.password()));
+            userRepository.save(user);
+        }
+
+        String token = tokenService.issue(
+                "admin",
+                String.valueOf(user.getId()),
+                Duration.ofMinutes(adminTokenTtlMinutes),
+                java.util.Map.of("role", user.getRole()));
 
         return new LoginResponse(
                 token,
@@ -49,10 +60,21 @@ public class AuthService {
     }
 
     public Optional<User> validateToken(String token) {
-        return Optional.ofNullable(tokenStore.get(token));
+        Optional<TokenService.TokenPayload> payload = tokenService.verify(token, "admin");
+        if (payload.isEmpty()) {
+            return Optional.empty();
+        }
+        Long userId;
+        try {
+            userId = Long.valueOf(payload.get().subject());
+        } catch (NumberFormatException exception) {
+            return Optional.empty();
+        }
+        return userRepository.findById(userId)
+                .filter(user -> Boolean.TRUE.equals(user.getEnabled()));
     }
 
     public void logout(String token) {
-        tokenStore.remove(token);
+        tokenService.revoke(token);
     }
 }

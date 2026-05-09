@@ -1,6 +1,7 @@
-const { getMergedOrders } = require("../../data/mock");
-const { getMyOrders, normalizeOrder } = require("../../services/hotel");
+const { getMergedOrders, upsertLocalOrder } = require("../../data/mock");
+const { getMyOrders, normalizeOrder, cancelOrder, payOrder } = require("../../services/hotel");
 const { getCurrentUser, getCurrentOpenid, getOrCreateDeviceId } = require("../../utils/session");
+const { markCouponUsed, returnCoupon } = require("../../utils/coupons");
 
 function mergeOrderList(primaryOrders, localOrders) {
   const map = new Map();
@@ -21,7 +22,8 @@ Page({
     dataSourceText: "本地模拟数据",
     currentUser: null,
     orders: [],
-    visibleOrders: []
+    visibleOrders: [],
+    cancelingOrderId: ""
   },
 
   onShow() {
@@ -88,15 +90,28 @@ Page({
 
   showOrderDetail(event) {
     const { id } = event.currentTarget.dataset;
-    wx.showModal({
-      title: "订单详情",
-      content: `这里可以继续接订单详情页。\n当前订单号：${id}`,
-      showCancel: false
+    if (!id) {
+      wx.showToast({
+        title: "订单号缺失",
+        icon: "none"
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/order-detail/order-detail?id=${encodeURIComponent(id)}`
     });
   },
 
   startFaceCheckin(event) {
     const { id, guest, roomName, amount, date } = event.currentTarget.dataset;
+    const order = this.data.orders.find((item) => String(item.id) === String(id));
+    if (order && order.paymentStatus !== "paid") {
+      wx.showToast({
+        title: "请先完成支付",
+        icon: "none"
+      });
+      return;
+    }
     const query = [
       `id=${encodeURIComponent(id)}`,
       `guest=${encodeURIComponent(guest || "")}`,
@@ -106,6 +121,109 @@ Page({
     ].join("&");
     wx.navigateTo({
       url: `/pages/face-checkin/face-checkin?${query}`
+    });
+  },
+
+  async handlePay(event) {
+    const { id } = event.currentTarget.dataset;
+    const order = this.data.orders.find((item) => String(item.id) === String(id));
+    if (!order || order.status !== "upcoming" || order.paymentStatus !== "pending") {
+      return;
+    }
+
+    let paidOrder = null;
+    try {
+      if (!getCurrentOpenid()) {
+        throw new Error("未登录，使用本地模拟支付");
+      }
+      paidOrder = normalizeOrder(await payOrder(order.id));
+    } catch (error) {
+      paidOrder = {
+        ...order,
+        paymentStatus: "paid",
+        paymentStatusText: "已支付",
+        paidAt: new Date().toISOString()
+      };
+    }
+    upsertLocalOrder(paidOrder);
+    markCouponUsed(paidOrder.couponId, paidOrder.id);
+
+    const nextOrders = this.data.orders.map((item) => (
+      String(item.id) === String(paidOrder.id) ? paidOrder : item
+    ));
+    this.setData({
+      orders: nextOrders,
+      dataSourceText: "本地模拟数据"
+    });
+    this.applyFilter(this.data.activeTab, nextOrders);
+    wx.showToast({
+      title: "支付成功",
+      icon: "success"
+    });
+  },
+
+  handleCancel(event) {
+    const { id } = event.currentTarget.dataset;
+    const order = this.data.orders.find((item) => String(item.id) === String(id));
+    if (!order || order.status !== "upcoming" || this.data.cancelingOrderId) {
+      return;
+    }
+
+    wx.showModal({
+      title: "取消订单",
+      content: "确定取消这笔未入住订单吗？",
+      confirmText: "确认取消",
+      success: async (res) => {
+        if (!res.confirm) {
+          return;
+        }
+
+        this.setData({ cancelingOrderId: String(order.id) });
+        wx.showLoading({ title: "取消中" });
+
+        let nextOrder = null;
+        let nextSourceText = "后端接口数据";
+        try {
+          if (!getCurrentOpenid()) {
+            throw new Error("未登录，使用本地模拟取消");
+          }
+          nextOrder = normalizeOrder(await cancelOrder(order.id));
+        } catch (error) {
+          nextSourceText = "本地模拟数据";
+          nextOrder = {
+            ...order,
+            status: "cancelled",
+            statusText: "已取消",
+            paymentStatus: order.paymentStatus === "paid" ? "refunded" : order.paymentStatus,
+            paymentStatusText: order.paymentStatus === "paid" ? "已退款" : order.paymentStatusText,
+            refundStatus: order.paymentStatus === "paid" ? "refunded" : "",
+            refundStatusText: order.paymentStatus === "paid" ? "已退款" : "",
+            refundAmount: order.paymentStatus === "paid" ? order.amount : 0
+          };
+        } finally {
+          wx.hideLoading();
+        }
+
+        if (order.couponId && (order.paymentStatus === "paid" || order.paymentStatus === "pending")) {
+          returnCoupon(order.couponId);
+        }
+        upsertLocalOrder(nextOrder);
+
+        const nextOrders = this.data.orders.map((item) => (
+          String(item.id) === String(nextOrder.id) ? nextOrder : item
+        ));
+        this.setData({
+          orders: nextOrders,
+          dataSourceText: nextSourceText,
+          cancelingOrderId: ""
+        });
+        this.applyFilter(this.data.activeTab, nextOrders);
+
+        wx.showToast({
+          title: order.paymentStatus === "paid" ? "已退款并返券" : "已取消",
+          icon: "success"
+        });
+      }
     });
   }
 });

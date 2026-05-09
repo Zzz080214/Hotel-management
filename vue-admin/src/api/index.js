@@ -56,8 +56,16 @@ async function apiRequest(path, options = {}) {
 }
 
 async function downloadRequest(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`)
+  const token = getToken()
+  const headers = {}
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  const response = await fetch(`${API_BASE_URL}${path}`, { headers })
   if (!response.ok) {
+    if (response.status === 401) {
+      clearToken()
+    }
     throw new Error('文件下载失败')
   }
   return response.blob()
@@ -100,6 +108,12 @@ export function checkInOrder(id, data) {
   })
 }
 
+export function confirmOrderPayment(id) {
+  return apiRequest(`/admin/orders/${encodeURIComponent(id)}/confirm-payment`, {
+    method: 'POST'
+  })
+}
+
 export function cancelOrder(id) {
   return apiRequest(`/admin/orders/${encodeURIComponent(id)}/cancel`, {
     method: 'POST'
@@ -120,6 +134,25 @@ export function fetchNotices() {
 export function publishNotice(data) {
   return apiRequest('/admin/notices', {
     method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+// 系统用户
+export function fetchUsers() {
+  return apiRequest('/admin/users')
+}
+
+export function createUser(data) {
+  return apiRequest('/admin/users', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+export function updateUser(id, data) {
+  return apiRequest(`/admin/users/${encodeURIComponent(id)}`, {
+    method: 'PUT',
     body: JSON.stringify(data)
   })
 }

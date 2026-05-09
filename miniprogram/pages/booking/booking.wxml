@@ -15,8 +15,6 @@
 
   <view class="card form-card">
     <view class="section-title">入住信息</view>
-    <view class="section-subtitle">这里先用静态表单演示下单流程</view>
-    <view class="source-line">当前数据来源：{{dataSourceText}}</view>
 
     <view class="field">
       <view class="field-label">联系人</view>
@@ -25,12 +23,21 @@
 
     <view class="field">
       <view class="field-label">联系电话</view>
-      <input class="field-input" value="{{contactPhone}}" type="number" placeholder="请输入手机号" data-field="contactPhone" bindinput="handleInput"></input>
+      <input class="field-input" value="{{contactPhone}}" type="number" maxlength="11" placeholder="请输入11位手机号" data-field="contactPhone" bindinput="handleInput"></input>
+    </view>
+
+    <view class="saved-guest" wx:if="{{savedGuestIdCard}}">
+      {{savedGuestLabel}}
+    </view>
+
+    <view class="field" wx:if="{{!savedGuestIdCard}}">
+      <view class="field-label">身份证号</view>
+      <input class="field-input" value="{{contactIdCard}}" maxlength="18" placeholder="请输入18位身份证号" data-field="contactIdCard" bindinput="handleInput"></input>
     </view>
 
     <view class="field">
       <view class="field-label">入住晚数</view>
-      <slider min="0" max="4" step="1" show-value value="{{stayNights - 1}}" bindchange="handleNightChange" activeColor="#9b5b28" backgroundColor="#ead9c6"></slider>
+      <slider min="1" max="5" step="1" show-value value="{{stayNights}}" bindchange="handleNightChange" activeColor="#9b5b28" backgroundColor="#ead9c6"></slider>
     </view>
 
     <view class="info-box">
@@ -49,13 +56,64 @@
     </view>
   </view>
 
-  <view class="card total-card">
-    <view>
-      <view class="total-label">订单总额</view>
-      <view class="total-note">{{stayNights}} 晚 · {{room.name}}</view>
+  <view class="card coupon-card">
+    <view class="section-title">优惠券</view>
+
+    <view class="coupon-option {{selectedCouponId === 'none' ? 'coupon-option-active' : ''}}" data-id="none" bindtap="handleCouponSelect">
+      <view>
+        <view class="coupon-name">不使用优惠券</view>
+      </view>
+      <view class="coupon-check">{{selectedCouponId === 'none' ? '已选' : '选择'}}</view>
     </view>
-    <view class="total-price">¥{{totalPrice}}</view>
+
+    <block wx:for="{{availableCoupons}}" wx:key="id">
+      <view class="coupon-option {{selectedCouponId === item.id ? 'coupon-option-active' : ''}}" data-id="{{item.id}}" bindtap="handleCouponSelect">
+        <view>
+          <view class="coupon-name">{{item.title}} · {{item.amount}}</view>
+        </view>
+        <view class="coupon-check">{{selectedCouponId === item.id ? '已选' : '选择'}}</view>
+      </view>
+    </block>
+
+    <view class="coupon-empty" wx:if="{{!availableCoupons.length}}">暂无满足当前订单条件的已领取优惠券</view>
   </view>
 
-  <view class="primary-btn submit-btn" bindtap="submitOrder">提交订单</view>
+  <view class="card total-card">
+    <view class="total-main">
+      <view class="total-label">订单总额</view>
+      <view class="total-note">{{stayNights}} 晚 · {{room.name}}</view>
+      <view class="price-lines">
+        <view class="price-line">
+          <text>房费小计</text>
+          <text>¥{{pricing.baseAmount}}</text>
+        </view>
+        <view class="price-line discount" wx:if="{{pricing.couponDiscount > 0}}">
+          <text>{{pricing.selectedCoupon.title}}</text>
+          <text>-¥{{pricing.couponDiscount}}</text>
+        </view>
+        <view class="price-line" wx:else>
+          <text>优惠抵扣</text>
+          <text>¥0</text>
+        </view>
+      </view>
+    </view>
+    <view class="pay-box">
+      <view class="pay-label">实付</view>
+      <view class="total-price">¥{{totalPrice}}</view>
+    </view>
+  </view>
+
+  <view class="card payment-card">
+    <view class="section-title">支付方式</view>
+    <view class="payment-options">
+      <view class="payment-option {{paymentStatus === 'paid' ? 'payment-option-active' : ''}}" data-status="paid" bindtap="handlePaymentModeChange">
+        <view class="payment-title">立即支付</view>
+      </view>
+      <view class="payment-option {{paymentStatus === 'pending' ? 'payment-option-active' : ''}}" data-status="pending" bindtap="handlePaymentModeChange">
+        <view class="payment-title">暂不支付</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="primary-btn submit-btn" bindtap="submitOrder">{{paymentStatus === 'paid' ? '立即付款' : '提交待支付订单'}} ¥{{totalPrice}}</view>
 </view>

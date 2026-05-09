@@ -20,6 +20,7 @@
     "ignore": [],
     "include": []
   },
-  "appid": "wxde034e388926eef6",
-  "editorSetting": {}
+  "appid": "touristappid",
+  "editorSetting": {},
+  "libVersion": "3.8.12"
 }

@@ -20,7 +20,7 @@
           <view class="order-id">{{item.id}}</view>
           <view class="order-room">{{item.roomName}}</view>
         </view>
-        <view class="pill {{item.status === 'finished' ? 'pill-success' : item.status === 'staying' ? 'pill-brand' : 'pill-warning'}}">{{item.statusText}}</view>
+        <view class="pill {{item.status === 'cancelled' ? 'pill-danger' : item.status === 'finished' ? 'pill-success' : item.status === 'staying' ? 'pill-brand' : 'pill-warning'}}">{{item.statusText}}</view>
       </view>
       <view class="order-row">
         <text class="muted">入住人</text>
@@ -34,12 +34,32 @@
         <text class="muted">订单金额</text>
         <text class="price">¥{{item.amount}}</text>
       </view>
+      <view class="order-row">
+        <text class="muted">支付状态</text>
+        <text>{{item.paymentStatusText}}</text>
+      </view>
+      <view class="order-row" wx:if="{{item.refundStatusText}}">
+        <text class="muted">退款状态</text>
+        <text>{{item.refundStatusText}}</text>
+      </view>
       <view class="order-row" wx:if="{{item.roomNo}}">
         <text class="muted">房号</text>
         <text>{{item.roomNo}}</text>
       </view>
       <view class="order-actions" wx:if="{{item.status === 'upcoming'}}">
         <view
+          class="cancel-order-btn {{cancelingOrderId === item.id ? 'is-disabled' : ''}}"
+          catchtap="handleCancel"
+          data-id="{{item.id}}"
+        >{{cancelingOrderId === item.id ? '取消中' : item.paymentStatus === 'paid' ? '退款取消' : '取消订单'}}</view>
+        <view
+          class="face-btn"
+          wx:if="{{item.paymentStatus === 'pending'}}"
+          catchtap="handlePay"
+          data-id="{{item.id}}"
+        >去支付</view>
+        <view
+          wx:if="{{item.paymentStatus === 'paid'}}"
           class="face-btn"
           catchtap="startFaceCheckin"
           data-id="{{item.id}}"

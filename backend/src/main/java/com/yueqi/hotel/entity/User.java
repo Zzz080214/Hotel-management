@@ -22,7 +22,8 @@ public class User {
     private String password;
 
     /**
-     * ADMIN — 管理员 可管理房型/公告/订单全流程
+     * ADMIN — 系统管理员 可管理系统用户、房型、公告、订单全流程
+     * MANAGER — 经理 可管理房型、公告、订单与经营报表
      * STAFF — 前台员工 入住退房 + 订单查看
      */
     @Column(nullable = false, length = 20)

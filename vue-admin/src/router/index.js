@@ -1,14 +1,14 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { adminState, restoreSession, refreshUser, showToast } from '../stores/admin.js'
+import { adminState, restoreSession, refreshUser, showToast, isBackOfficeRole, roleHome } from '../stores/admin.js'
+import { fetchDashboard, fetchRoomTypes, fetchOrders, fetchNotices } from '../api/index.js'
 
 async function loadData() {
-  const api = await import('../api/index.js')
   try {
     const [dashboard, rooms, orders, notices] = await Promise.all([
-      api.fetchDashboard().catch(() => null),
-      api.fetchRoomTypes().catch(() => []),
-      api.fetchOrders().catch(() => []),
-      api.fetchNotices().catch(() => [])
+      fetchDashboard().catch(() => null),
+      fetchRoomTypes().catch(() => []),
+      fetchOrders().catch(() => []),
+      fetchNotices().catch(() => [])
     ])
     adminState.dashboard = dashboard
     adminState.rooms = rooms
@@ -20,9 +20,21 @@ async function loadData() {
 }
 
 // ══════════════════════════════════════════════
-// 管理员路由（经营管理）
+// 系统管理员独有路由（账号与权限）
 // ══════════════════════════════════════════════
-const adminRoutes = [
+const adminOnlyRoutes = [
+  {
+    path: '/users',
+    name: 'Users',
+    component: () => import('../views/Users.vue'),
+    meta: { title: '系统用户', subtitle: '管理员、经理、前台员工账号与权限状态管理' }
+  }
+]
+
+// ══════════════════════════════════════════════
+// 经理 / 管理员共用路由（经营管理）
+// ══════════════════════════════════════════════
+const managementRoutes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
@@ -95,7 +107,11 @@ const router = createRouter({
 
 function applyRoutes(role) {
   const existingNames = router.getRoutes().map(r => r.name)
-  const targetRoutes = role === 'ADMIN' ? adminRoutes : staffRoutes
+  const targetRoutes = role === 'ADMIN'
+    ? [...adminOnlyRoutes, ...managementRoutes]
+    : isBackOfficeRole(role)
+      ? managementRoutes
+      : staffRoutes
   for (const r of targetRoutes) {
     if (!existingNames.includes(r.name)) {
       router.addRoute(r)
@@ -106,7 +122,7 @@ function applyRoutes(role) {
   if (homeRoute) router.removeRoute(homeRoute.name || '/')
   router.addRoute({
     path: '/',
-    redirect: role === 'ADMIN' ? '/dashboard' : '/staff/room-board'
+    redirect: roleHome(role)
   })
 }
 
@@ -124,7 +140,7 @@ router.beforeEach(async (to, from, next) => {
   // 确保当前角色路由已注册（换角色登录时需重新注册）
   // 用角色独有路由名判断，而非 count，防止前一角色的路由残留导致跳过
   const role = adminState.currentUser.role
-  const needRoute = role === 'ADMIN' ? 'Dashboard' : 'RoomBoard'
+  const needRoute = role === 'ADMIN' ? 'Users' : isBackOfficeRole(role) ? 'Dashboard' : 'RoomBoard'
   const hasRoleRoute = router.getRoutes().some(r => r.name === needRoute)
   if (!hasRoleRoute) {
     applyRoutes(role)
@@ -133,19 +149,24 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // ---- 角色隔离守卫 ----
-  const adminPaths = ['/dashboard', '/room-types', '/orders', '/reports', '/notices']
+  const managementPaths = ['/dashboard', '/room-types', '/orders', '/reports', '/notices']
+  const adminOnlyPaths = ['/users']
   const staffPaths = ['/staff/room-board', '/staff/checkin', '/staff/checkout']
 
-  if (adminState.currentUser.role === 'STAFF' && adminPaths.includes(to.path)) {
+  if (!isBackOfficeRole(role) && [...managementPaths, ...adminOnlyPaths].includes(to.path)) {
     showToast('当前账号为前台员工，无权访问管理功能')
     return next('/staff/room-board')
   }
-  if (adminState.currentUser.role === 'ADMIN' && staffPaths.includes(to.path)) {
+  if (role === 'MANAGER' && adminOnlyPaths.includes(to.path)) {
+    showToast('当前账号为经理，无权访问系统用户管理')
     return next('/dashboard')
+  }
+  if (isBackOfficeRole(role) && staffPaths.includes(to.path)) {
+    return next(roleHome(role))
   }
 
   // ---- 未匹配路由兜底 ----
-  const homePath = adminState.currentUser.role === 'ADMIN' ? '/dashboard' : '/staff/room-board'
+  const homePath = roleHome(role)
   if (to.matched.length === 0) {
     return next(homePath)
   }

@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: ${DB_TEST_URL:jdbc:mysql://127.0.0.1:3306/hotel_management_test?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${DB_TEST_USERNAME:${DB_USERNAME:root}}
-    password: ${DB_TEST_PASSWORD:${DB_PASSWORD:}}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:hotel_management_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create
@@ -13,3 +13,16 @@ spring:
 logging:
   level:
     org.hibernate.SQL: warn
+
+auth:
+  token:
+    secret: test-token-secret-with-enough-length
+    admin-ttl-minutes: 480
+    wx-ttl-minutes: 43200
+
+wx:
+  mini-program:
+    dev-login-enabled: true
+
+payment:
+  callback-secret: test-payment-callback-secret

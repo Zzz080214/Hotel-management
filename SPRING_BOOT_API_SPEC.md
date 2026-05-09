@@ -107,6 +107,30 @@
 }
 ```
 
+注意：`totalAmount`、`originalAmount`、`discountAmount` 和 `paymentStatus` 只作为前端展示/兼容字段，后端不会信任这些值。实际金额由后端按房型价格、入住晚数和优惠券规则重新计算；新订单默认是 `pending`。
+
+### 6.1 支付确认
+
+- `POST /wx/orders/{id}/pay`
+
+小程序“立即支付”会先创建订单，再调用该接口确认支付。真实支付接入时应由支付网关回调后端：
+
+- `POST /payments/wechat/callback`
+- 请求头：`X-Payment-Callback-Secret`
+
+回调体：
+
+```json
+{
+  "orderId": "HT202605090001",
+  "amount": 809.40,
+  "transactionId": "wxpay-transaction-id",
+  "status": "SUCCESS"
+}
+```
+
+后端会校验回调金额必须等于订单应付金额。
+
 ### 7. 我的订单
 
 - `GET /wx/orders/my`
@@ -146,7 +170,7 @@
 
 ## JWT 建议
 
-如果你后端已经做了 JWT：
+当前后端已经使用带签名和过期时间的本地 JWT 风格令牌：
 
 - 登录成功后把 token 保存到：`wx.setStorageSync("token", token)`
 - 小程序请求层会自动在需要鉴权的接口上带上：
@@ -154,6 +178,8 @@
 ```http
 Authorization: Bearer xxxxx
 ```
+
+生产环境请配置 `AUTH_TOKEN_SECRET`，并设置 `WX_DEV_LOGIN_ENABLED=false`，避免 `devOpenid` 兜底登录被外部环境使用。
 
 ## 当前已接入页面
 

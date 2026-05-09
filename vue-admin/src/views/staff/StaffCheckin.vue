@@ -113,7 +113,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { adminState, showToast } from '../../stores/admin.js'
-import { fetchRoomTypes, fetchOrders, createOrder, checkInOrder, money } from '../../api/index.js'
+import { fetchRoomTypes, fetchOrders, createOrder, confirmOrderPayment, checkInOrder, money } from '../../api/index.js'
 
 const route = useRoute()
 
@@ -175,6 +175,7 @@ function prefillFromOrder(order) {
   selectedOrderId.value = order.id || ''
   form.value.guestName = order.guestName || ''
   form.value.guestPhone = order.guestPhone || ''
+  form.value.idNumber = order.guestIdCard || ''
   form.value.roomTypeName = order.roomTypeName || ''
   form.value.checkIn = order.checkInDate || form.value.checkIn
   form.value.checkOut = order.checkOutDate || form.value.checkOut
@@ -191,8 +192,9 @@ function resetForm() {
 }
 
 async function doCheckin() {
-  if (!form.value.guestName || !/^1\d{10}$/.test(form.value.guestPhone)) {
-    showToast('请填写完整姓名和 11 位手机号'); return
+  const idNumber = String(form.value.idNumber || '').replace(/\s/g, '').toUpperCase()
+  if (!form.value.guestName || !/^1\d{10}$/.test(form.value.guestPhone) || !/^\d{17}[\dX]$/.test(idNumber)) {
+    showToast('请填写完整姓名、11 位手机号和 18 位身份证号'); return
   }
   if (!form.value.roomNo) { showToast('所选房型暂无可用房间'); return }
   const room = selectedRoom.value
@@ -204,10 +206,15 @@ async function doCheckin() {
       const order = await createOrder({
         roomTypeId: room.id, roomTypeName: room.name,
         guestName: form.value.guestName, guestPhone: form.value.guestPhone,
+        guestIdCard: idNumber,
         stayNights: stayNights.value, totalAmount: totalAmount.value,
         checkInDate: form.value.checkIn, checkOutDate: form.value.checkOut
       })
       orderId = order.id
+    }
+    const existingOrder = (adminState.orders || []).find(o => o.id === orderId)
+    if (!existingOrder || existingOrder.paymentStatus === 'pending') {
+      await confirmOrderPayment(orderId)
     }
     await checkInOrder(orderId, { roomNo: form.value.roomNo })
     showToast(`入住成功！${form.value.roomNo} 号房，${form.value.guestName}，订单号 ${orderId}`)

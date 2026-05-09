@@ -9,68 +9,9 @@ const {
   selfCheckOutOrder
 } = require("../../services/hotel");
 const { getCurrentUser, saveWxSession, clearCurrentUser, getOrCreateDeviceId } = require("../../utils/session");
-
-const GUEST_KEY = "profile_guest_list";
-const COUPON_KEY = "profile_coupon_list";
+const { defaultCoupons, readCouponList, claimCouponById } = require("../../utils/coupons");
+const { defaultGuests, readGuestList, writeGuestList } = require("../../utils/guest");
 const PENDING_PANEL_KEY = "profile_pending_panel";
-
-function defaultGuests() {
-  return [
-    {
-      id: "guest-default-1",
-      name: "张同学",
-      phone: "13800138000",
-      idCard: "4401********1234",
-      isDefault: true
-    }
-  ];
-}
-
-function defaultCoupons() {
-  return [
-    {
-      id: "coupon-new",
-      title: "新客立减券",
-      amount: "¥60",
-      threshold: "满 399 可用",
-      expire: "2026-05-31",
-      status: "可领取"
-    },
-    {
-      id: "coupon-stay",
-      title: "连住优惠券",
-      amount: "95折",
-      threshold: "连续入住 2 晚可用",
-      expire: "2026-06-30",
-      status: "已领取"
-    },
-    {
-      id: "coupon-breakfast",
-      title: "双人早餐券",
-      amount: "早餐",
-      threshold: "行政套房预订可用",
-      expire: "2026-05-20",
-      status: "可领取"
-    }
-  ];
-}
-
-function readStorageList(key, fallback) {
-  try {
-    const stored = wx.getStorageSync(key);
-    return Array.isArray(stored) && stored.length ? stored : fallback();
-  } catch (error) {
-    return fallback();
-  }
-}
-
-function writeStorageList(key, list) {
-  try {
-    wx.setStorageSync(key, list);
-  } catch (error) {
-    return;
-  }
-}
 
 function makeRoomPassword(order) {
   const seed = String(order.id || order.roomNo || Date.now());
@@ -193,8 +134,8 @@ Page({
       ? app.globalData.servicePhone
       : "400-820-2026";
     this.setData({
-      guestList: readStorageList(GUEST_KEY, defaultGuests),
-      couponList: readStorageList(COUPON_KEY, defaultCoupons),
+      guestList: readGuestList(),
+      couponList: readCouponList(),
       serviceInfo: {
         ...this.data.serviceInfo,
         phone: servicePhone
@@ -349,7 +290,7 @@ Page({
       ? existing.map((item) => item.id === form.id ? nextGuest : item)
       : [nextGuest, ...existing];
 
-    writeStorageList(GUEST_KEY, nextList);
+    writeGuestList(nextList);
     this.setData({
       guestList: nextList,
       guestForm: {
@@ -382,7 +323,7 @@ Page({
       ...item,
       isDefault: item.id === id
     }));
-    writeStorageList(GUEST_KEY, nextList);
+    writeGuestList(nextList);
     this.setData({ guestList: nextList });
     wx.showToast({ title: "已设为默认", icon: "success" });
   },
@@ -398,7 +339,7 @@ Page({
         if (nextList.length && !nextList.some((item) => item.isDefault)) {
           nextList[0].isDefault = true;
         }
-        writeStorageList(GUEST_KEY, nextList);
+        writeGuestList(nextList);
         this.setData({ guestList: nextList });
       }
     });
@@ -406,23 +347,12 @@ Page({
 
   claimCoupon(event) {
     const { id } = event.currentTarget.dataset;
-    const current = (this.data.couponList || []).find((item) => item.id === id);
-    if (current && current.status === "已领取") {
-      wx.showToast({ title: "已在券包", icon: "none" });
-      return;
-    }
-    const nextList = (this.data.couponList || []).map((item) => {
-      if (item.id !== id || item.status === "已领取") {
-        return item;
-      }
-      return {
-        ...item,
-        status: "已领取"
-      };
+    const result = claimCouponById(id);
+    this.setData({ couponList: result.list });
+    wx.showToast({
+      title: result.message,
+      icon: result.changed ? "success" : "none"
     });
-    writeStorageList(COUPON_KEY, nextList);
-    this.setData({ couponList: nextList });
-    wx.showToast({ title: "领取成功", icon: "success" });
   },
 
   async loadStayOrders(showEmptyToast = true) {

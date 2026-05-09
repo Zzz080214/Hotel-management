@@ -14,6 +14,8 @@ target/
 backend/data/
 backend/.codex-logs/
 vue-admin/.codex-logs/
+.codex-preview/
+.claude/
 
 # Browser/test automation profiles
 vue-admin/.edge-screenshot-profile/
@@ -30,7 +32,15 @@ dashboard-*.png
 vue-admin-*-test.png
 vue-admin/current-vue-demo.png
 wechat-*.png
+codex-*.png
 vue-admin/dump-*.html
+
+# Generated load-test artifacts and bundled tools
+load-tests/apache-jmeter-*/
+load-tests/*.zip
+load-tests/*.jtl
+load-tests/jmeter.log
+load-tests/jmeter-dashboard/
 
 # OS metadata
 .DS_Store

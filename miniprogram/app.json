@@ -5,6 +5,7 @@
     "pages/booking/booking",
     "pages/face-checkin/face-checkin",
     "pages/orders/orders",
+    "pages/order-detail/order-detail",
     "pages/profile/profile"
   ],
   "window": {

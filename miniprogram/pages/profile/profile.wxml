@@ -103,9 +103,8 @@
         <view class="password-expire">有效期至 {{passwordExpireAt || '--:--'}}</view>
       </view>
       <view class="panel-empty" wx:else>暂无在住订单，请先完成刷脸入住</view>
-      <view class="service-actions" wx:if="{{currentStayOrder}}">
-        <view class="primary-btn service-btn" bindtap="refreshRoomPassword">生成密码</view>
-        <view class="ghost-btn service-btn" bindtap="copyRoomPassword">复制密码</view>
+      <view class="service-actions password-actions" wx:if="{{currentStayOrder}}">
+        <view class="primary-btn service-btn" bindtap="copyRoomPassword">复制密码</view>
       </view>
     </view>
 
@@ -134,8 +133,8 @@
             <view class="coupon-desc">{{item.threshold}}</view>
             <view class="coupon-date">有效期至 {{item.expire}}</view>
           </view>
-          <view class="coupon-action {{item.status === '已领取' ? 'coupon-action-disabled' : ''}}" data-id="{{item.id}}" bindtap="claimCoupon">
-            {{item.status === '已领取' ? '已领取' : '领取'}}
+          <view class="coupon-action {{item.status !== '可领取' ? 'coupon-action-disabled' : ''}}" data-id="{{item.id}}" bindtap="claimCoupon">
+            {{item.status === '可领取' ? '领取' : item.status}}
           </view>
         </view>
       </block>

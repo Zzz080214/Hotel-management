@@ -4,13 +4,13 @@
 
 .summary-image {
   width: 100%;
-  height: 280rpx;
+  height: 320rpx;
 }
 
 .summary-body,
 .form-card,
 .total-card {
-  padding: 24rpx;
+  padding: 28rpx;
 }
 
 .summary-top,
@@ -23,71 +23,213 @@
 
 .summary-name {
   font-size: 34rpx;
-  font-weight: 700;
+  font-weight: 600;
+  color: #14202c;
+  letter-spacing: 1rpx;
 }
 
 .summary-meta,
 .summary-text,
 .total-note {
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   font-size: 24rpx;
-  line-height: 1.7;
-  color: #7c6651;
+  line-height: 1.75;
+  color: #7a8290;
+  letter-spacing: 0.4rpx;
 }
 
 .form-card,
+.coupon-card,
+.payment-card,
 .total-card {
-  margin-top: 20rpx;
+  margin-top: 22rpx;
 }
 
 .source-line {
-  margin-top: 12rpx;
-  font-size: 22rpx;
-  color: #9b5b28;
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  color: #8a6a3e;
+  letter-spacing: 1.4rpx;
+  text-transform: uppercase;
 }
 
 .field {
-  margin-top: 22rpx;
+  margin-top: 24rpx;
 }
 
 .field-label {
   margin-bottom: 12rpx;
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #7c6651;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #7a8290;
+  letter-spacing: 1.6rpx;
+  text-transform: uppercase;
 }
 
 .field-input {
   height: 84rpx;
   padding: 0 24rpx;
-  border-radius: 22rpx;
+  border-radius: 14rpx;
   background: #fffefb;
-  border: 1rpx solid rgba(127, 67, 24, 0.12);
+  border: 1rpx solid rgba(28, 38, 50, 0.10);
+  font-size: 26rpx;
+  color: #14202c;
+}
+
+.saved-guest {
+  margin-top: 14rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 14rpx;
+  background: rgba(47, 125, 85, 0.08);
+  border: 1rpx solid rgba(47, 125, 85, 0.16);
+  font-size: 22rpx;
+  color: #2f7d55;
+  line-height: 1.5;
 }
 
 .info-box {
-  margin-top: 24rpx;
-  padding: 22rpx;
-  border-radius: 22rpx;
-  background: rgba(185, 107, 44, 0.08);
+  margin-top: 26rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(180deg, rgba(184, 148, 92, 0.08), rgba(184, 148, 92, 0.02));
+  border: 1rpx solid rgba(184, 148, 92, 0.18);
 }
 
 .info-row {
   font-size: 24rpx;
-  line-height: 1.8;
+  line-height: 1.85;
+  color: #14202c;
+}
+
+.coupon-card {
+  padding: 28rpx;
+}
+
+.payment-card {
+  padding: 28rpx;
+}
+
+.coupon-option {
+  margin-top: 20rpx;
+  min-height: 104rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(28, 38, 50, 0.10);
+  background: #fffefb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.coupon-option-active {
+  border-color: rgba(47, 125, 85, 0.34);
+  background: rgba(47, 125, 85, 0.08);
+}
+
+.coupon-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #14202c;
+  line-height: 1.35;
+}
+
+.coupon-desc,
+.coupon-empty {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.55;
+  color: #7a8290;
+}
+
+.coupon-check {
+  flex: 0 0 auto;
+  min-width: 72rpx;
+  text-align: right;
+  font-size: 23rpx;
+  font-weight: 600;
+  color: #2f7d55;
+}
+
+.coupon-empty {
+  padding-left: 22rpx;
+}
+
+.payment-options {
+  margin-top: 20rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.payment-option {
+  min-height: 88rpx;
+  padding: 22rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(28, 38, 50, 0.10);
+  background: #fffefb;
+  box-sizing: border-box;
+}
+
+.payment-option-active {
+  border-color: rgba(47, 125, 85, 0.34);
+  background: rgba(47, 125, 85, 0.08);
+}
+
+.payment-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #14202c;
+}
+
+.total-main {
+  flex: 1;
 }
 
 .total-label {
-  font-size: 24rpx;
-  color: #7c6651;
+  font-size: 22rpx;
+  color: #7a8290;
+  letter-spacing: 1.4rpx;
+  text-transform: uppercase;
+}
+
+.price-lines {
+  margin-top: 18rpx;
+}
+
+.price-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  font-size: 23rpx;
+  line-height: 1.75;
+  color: #7a8290;
+}
+
+.price-line.discount {
+  color: #2f7d55;
+}
+
+.pay-box {
+  min-width: 190rpx;
+  text-align: right;
+}
+
+.pay-label {
+  margin-bottom: 8rpx;
+  font-size: 22rpx;
+  color: #7a8290;
 }
 
 .total-price {
-  font-size: 44rpx;
-  font-weight: 700;
-  color: #9b5b28;
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #14202c;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .submit-btn {
-  margin-top: 24rpx;
+  margin-top: 26rpx;
 }

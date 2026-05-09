@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Apache JMeter 性能测试聚合报告</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      color: #1f2937;
+      background: #eef3f8;
+    }
+    .report {
+      max-width: 1240px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #cfd8e3;
+      border-radius: 8px;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, .12);
+      overflow: hidden;
+    }
+    .header {
+      padding: 22px 28px 20px;
+      color: #fff;
+      background: #21364d;
+      border-bottom: 4px solid #c9954a;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px 22px;
+      color: rgba(255,255,255,.9);
+      font-size: 14px;
+    }
+    .body {
+      padding: 24px 28px 28px;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .kpi {
+      min-height: 86px;
+      padding: 14px 14px 12px;
+      border: 1px solid #d7e0eb;
+      border-radius: 8px;
+      background: #f8fbfe;
+    }
+    .kpi span {
+      display: block;
+      margin-bottom: 7px;
+      color: #64748b;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .kpi strong {
+      display: block;
+      color: #111827;
+      font-size: 23px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #cfd8e3;
+      font-size: 13px;
+    }
+    th {
+      padding: 10px 9px;
+      color: #24384e;
+      background: #e7edf5;
+      border-bottom: 1px solid #cfd8e3;
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+    td {
+      padding: 10px 9px;
+      border-bottom: 1px solid #e3e9f0;
+      text-align: right;
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .ok { color: #047857; font-weight: 700; }
+    .bad { color: #b91c1c; font-weight: 700; }
+    .note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      color: #4b5563;
+      background: #f7fafc;
+      border: 1px solid #dbe4ee;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <main class="report">
+    <section class="header">
+      <h1>Apache JMeter 性能测试聚合报告</h1>
+      <div class="meta">
+        <div>系统名称：悦栖酒店管理系统</div>
+        <div>测试工具：Apache JMeter 5.6.3</div>
+        <div>测试地址：http://127.0.0.1:8080</div>
+        <div>并发用户数：50</div>
+        <div>循环次数：20</div>
+        <div>启动时间：2026/5/8 15:08:59</div>
+      </div>
+    </section>
+    <section class="body">
+      <div class="kpis">
+        <div class="kpi"><span>总请求数</span><strong>6000</strong></div>
+        <div class="kpi"><span>平均响应时间</span><strong>3 ms</strong></div>
+        <div class="kpi"><span>95% 响应时间</span><strong>8 ms</strong></div>
+        <div class="kpi"><span>最大响应时间</span><strong>32 ms</strong></div>
+        <div class="kpi"><span>吞吐量</span><strong>264.67 /s</strong></div>
+        <div class="kpi"><span>错误率</span><strong class="ok">0.00%</strong></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th># Samples</th>
+            <th>Average</th>
+            <th>Median</th>
+            <th>90% Line</th>
+            <th>95% Line</th>
+            <th>99% Line</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Error %</th>
+            <th>Throughput</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>后台登录</td>
+            <td>1000</td>
+            <td>1</td>
+            <td>1</td>
+            <td>2</td>
+            <td>2</td>
+            <td>3</td>
+            <td>0</td>
+            <td>32</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr>
+          <tr>
+            <td>后台订单管理</td>
+            <td>1000</td>
+            <td>2</td>
+            <td>2</td>
+            <td>3</td>
+            <td>3</td>
+            <td>4</td>
+            <td>1</td>
+            <td>6</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr>
+          <tr>
+            <td>后台经营看板</td>
+            <td>1000</td>
+            <td>7</td>
+            <td>7</td>
+            <td>9</td>
+            <td>9</td>
+            <td>11</td>
+            <td>5</td>
+            <td>13</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr>
+          <tr>
+            <td>小程序公告查询</td>
+            <td>1000</td>
+            <td>2</td>
+            <td>2</td>
+            <td>3</td>
+            <td>3</td>
+            <td>4</td>
+            <td>1</td>
+            <td>6</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr>
+          <tr>
+            <td>小程序客房查询</td>
+            <td>1000</td>
+            <td>3</td>
+            <td>3</td>
+            <td>4</td>
+            <td>4</td>
+            <td>5</td>
+            <td>1</td>
+            <td>7</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr>
+          <tr>
+            <td>小程序推荐房型</td>
+            <td>1000</td>
+            <td>3</td>
+            <td>3</td>
+            <td>4</td>
+            <td>4</td>
+            <td>5</td>
+            <td>1</td>
+            <td>7</td>
+            <td class="ok">0.00%</td>
+            <td>44.11</td>
+          </tr></tbody>
+      </table>
+
+      <div class="note">
+        本次测试模拟多个 Web 客户端并发访问，覆盖后台登录、小程序客房查询、小程序公告查询、后台经营看板和后台订单管理等核心接口。结果统计来源于 JMeter JTL 文件，可用于毕业设计论文中的性能测试章节。
+      </div>
+    </section>
+  </main>
+</body>
+</html>
